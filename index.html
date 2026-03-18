@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudo dos Acordes</title>
+    <!-- Tailwind CSS para estilização rápida e moderna -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonte Inter do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Efeito suave nas transições */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Transição suave para o tamanho do cartão principal */
+        #main-card {
+            transition: max-width 0.4s ease-in-out;
+        }
+        /* Estilização personalizada para o slider do metrônomo */
+        input[type=range].metronome-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range].metronome-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #475569; /* slate-600 */
+            cursor: pointer;
+            margin-top: -8px;
+        }
+        input[type=range].metronome-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 2px;
+        }
+        /* Estilização das Palhetas do Dicionário */
+        .palheta {
+            width: 60px;
+            height: 68px;
+            background-color: #ef4444; /* red-500 */
+            border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .palheta:hover {
+            transform: scale(1.05) translateY(-2px);
+        }
+        .palheta-inner {
+            width: 42px;
+            height: 42px;
+            background-color: #fde047; /* yellow-300 */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: #111827;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Cartão Principal -->
+    <div id="main-card" class="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full fade-in">
+        
+        <!-- Tela Inicial (Menu Principal) -->
+        <div id="start-screen" class="text-center fade-in">
+            <h1 class="text-4xl font-extrabold text-indigo-600 mb-2">Estudo dos Acordes</h1>
+            <p class="text-slate-500 mb-8">Escolha um modo de estudo:</p>
+            
+            <div class="space-y-4">
+                <!-- Botão de Teoria Didática -->
+                <button onclick="mostrarTeoriaExplicacao()" class="w-full bg-purple-50 hover:bg-purple-100 border-2 border-purple-200 text-purple-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-3">
+                    <span class="text-xl">📚</span> Aprender Teoria Musical
+                </button>
+                
+                <!-- Botão do Dicionário de Acordes -->
+                <button onclick="mostrarDicionarioCategorias()" class="w-full bg-slate-800 hover:bg-slate-900 border border-slate-700 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-3">
+                    <span class="text-xl">📖</span> Dicionário de Acordes
+                </button>
+
+                <!-- Botão de Quiz -->
+                <button onclick="mostrarOpcoesQuiz()" class="w-full bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 text-indigo-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
+                    <span>🎸</span> Jogar Quiz de Acordes
+                </button>
+
+                <!-- Botão de Exercícios de Escalas -->
+                <button onclick="mostrarTeoriaMenu()" class="w-full bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 text-blue-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
+                    <span>🧠</span> Exercícios de Escalas
+                </button>
+
+                <!-- Botão de Estudar Campos Harmónicos -->
+                <button onclick="mostrarTelaCampos()" class="w-full bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-200 text-emerald-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
+                    <span>🎵</span> Estudar Campos Harmônicos
+                </button>
+
+                <!-- Botão Metrônomo -->
+                <button onclick="mostrarMetronomo()" class="w-full bg-amber-50 hover:bg-amber-100 border-2 border-amber-200 text-amber-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
+                    <span>⏱️</span> Metrónomo
+                </button>
+            </div>
+        </div>
+
+        <!-- TELA DE EXPLICAÇÃO DA TEORIA (AULA DIDÁTICA) -->
+        <div id="teoria-explicacao-screen" class="hidden fade-in w-full">
+            <h1 class="text-4xl font-extrabold text-purple-700 mb-2 text-center">Teoria Descomplicada</h1>
+            <p class="text-slate-500 mb-8 text-center text-lg">De zero a mestre: entenda os alicerces da música.</p>
+            
+            <div class="space-y-8 text-left text-slate-700 leading-relaxed max-h-[65vh] overflow-y-auto pr-4">
+                
+                <!-- Secção 1: Intervalos -->
+                <div class="bg-white p-6 rounded-2xl border border-indigo-100 shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span> 
+                        A Régua Musical: Tons e Semitons
+                    </h2>
+                    <p class="mb-4">Antes de criar escalas ou acordes, precisamos medir a distância entre as notas. Na música ocidental, a menor distância entre duas notas é o <strong>Semitom</strong>. Dois semitons formam 1 <strong>Tom</strong>.</p>
+                    
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
+                        <p class="font-semibold text-slate-800 mb-2">No Braço do Violão:</p>
+                        <div class="flex items-center gap-4">
+                            <!-- Visualização do braço do violão para intervalos -->
+                            <div class="flex-1 bg-amber-800 p-2 rounded-lg relative overflow-hidden flex border-4 border-amber-900">
+                                <div class="w-1/3 h-16 border-r-4 border-slate-300 flex flex-col justify-center items-center relative">
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-1/4"></div>
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-2/4"></div>
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-3/4"></div>
+                                    <div class="w-6 h-6 bg-white rounded-full z-10 flex items-center justify-center text-xs font-bold shadow-md">C</div>
+                                </div>
+                                <div class="w-1/3 h-16 border-r-4 border-slate-300 flex flex-col justify-center items-center relative bg-amber-900/30">
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-1/4"></div>
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-2/4"></div>
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-3/4"></div>
+                                    <div class="w-6 h-6 bg-red-400 text-white rounded-full z-10 flex items-center justify-center text-xs font-bold shadow-md">C#</div>
+                                </div>
+                                <div class="w-1/3 h-16 flex flex-col justify-center items-center relative">
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-1/4"></div>
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-2/4"></div>
+                                    <div class="w-full h-[2px] bg-slate-400 absolute top-3/4"></div>
+                                    <div class="w-6 h-6 bg-white rounded-full z-10 flex items-center justify-center text-xs font-bold shadow-md">D</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-xs mt-2 font-medium text-slate-500">
+                            <span>Casa 1</span>
+                            <span>Casa 2</span>
+                            <span>Casa 3</span>
+                        </div>
+                        <ul class="mt-4 space-y-1 text-sm">
+                            <li><span class="text-red-500 font-bold">&rarr;</span> Andar <strong>1 casa</strong> (Ex: C para C#) = 1 Semitom.</li>
+                            <li><span class="text-indigo-500 font-bold">&rarr;</span> Andar <strong>2 casas</strong> (Ex: C para D) = 1 Tom.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Secção 2: A Escala -->
+                <div class="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-purple-100 text-purple-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span> 
+                        A Escala Maior (O Alfabeto)
+                    </h2>
+                    <p class="mb-4">Uma escala é uma sequência de notas escolhidas a dedo. A Escala Maior (aquela que soa alegre e triunfante) segue sempre uma "fórmula mágica" de distâncias.</p>
+                    
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 mb-4">
+                        <p class="font-semibold text-purple-800 mb-3 text-center">Fórmula: TOM - TOM - Semitom - TOM - TOM - TOM - Semitom</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center gap-1 sm:gap-2 text-sm md:text-base font-bold text-slate-700">
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-purple-300 shadow-sm">Dó</div>
+                            <div class="text-[10px] text-purple-500 uppercase tracking-widest">Tom</div>
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-purple-300 shadow-sm">Ré</div>
+                            <div class="text-[10px] text-purple-500 uppercase tracking-widest">Tom</div>
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-purple-300 shadow-sm">Mi</div>
+                            <div class="text-[10px] text-amber-500 uppercase tracking-widest font-black">S.Tom</div>
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-purple-300 shadow-sm">Fá</div>
+                            <div class="text-[10px] text-purple-500 uppercase tracking-widest">Tom</div>
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-purple-300 shadow-sm">Sol</div>
+                            <div class="text-[10px] text-purple-500 uppercase tracking-widest">Tom</div>
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-purple-300 shadow-sm">Lá</div>
+                            <div class="text-[10px] text-purple-500 uppercase tracking-widest">Tom</div>
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-purple-300 shadow-sm">Si</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secção 3: Formação de Acordes -->
+                <div class="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-rose-100 text-rose-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span> 
+                        Como nascem os Acordes? (Tríades)
+                    </h2>
+                    <p class="mb-4">Um acorde básico é formado por <strong>3 notas tocadas em simultâneo</strong> (uma Tríade). Nós construímos acordes empilhando notas da escala, saltando sempre uma nota.</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h3 class="font-bold text-emerald-600 mb-2">Acorde Maior (Alegre)</h3>
+                            <p class="text-xs text-slate-500 mb-3">Fórmula: Tónica + 3ª Maior + 5ª Justa.</p>
+                            <div class="flex items-end justify-center gap-2 h-20">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-8 bg-emerald-100 border border-emerald-300 rounded-t-md flex items-center justify-center font-bold text-emerald-700">Sol</div>
+                                    <span class="text-[10px] text-slate-400 mt-1">5ª (Justa)</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 bg-emerald-200 border border-emerald-400 rounded-t-md flex items-center justify-center font-bold text-emerald-800">Mi</div>
+                                    <span class="text-[10px] text-slate-400 mt-1">3ª (Maior)</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-16 bg-emerald-300 border border-emerald-500 rounded-t-md flex items-center justify-center font-bold text-emerald-900">Dó</div>
+                                    <span class="text-[10px] text-slate-400 mt-1">1ª (Tónica)</span>
+                                </div>
+                            </div>
+                            <p class="text-center font-black text-lg mt-2 text-slate-800">Acorde de C</p>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h3 class="font-bold text-blue-600 mb-2">Acorde menor (Triste)</h3>
+                            <p class="text-xs text-slate-500 mb-3">Fórmula: Tónica + 3ª menor (baixamos meio tom) + 5ª Justa.</p>
+                            <div class="flex items-end justify-center gap-2 h-20">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-8 bg-blue-100 border border-blue-300 rounded-t-md flex items-center justify-center font-bold text-blue-700">Sol</div>
+                                    <span class="text-[10px] text-slate-400 mt-1">5ª (Justa)</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-10 bg-blue-200 border border-blue-400 rounded-t-md flex items-center justify-center font-bold text-blue-800">Mib</div>
+                                    <span class="text-[10px] text-red-500 font-bold mt-1">3ª (menor)</span>
+                                </div>
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-16 bg-blue-300 border border-blue-500 rounded-t-md flex items-center justify-center font-bold text-blue-900">Dó</div>
+                                    <span class="text-[10px] text-slate-400 mt-1">1ª (Tónica)</span>
+                                </div>
+                            </div>
+                            <p class="text-center font-black text-lg mt-2 text-slate-800">Acorde de Cm</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secção 4: O Campo Harmônico -->
+                <div class="bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">4</span> 
+                        O Campo Harmônico
+                    </h2>
+                    <p class="mb-4">Se aplicarmos a regra de empilhar notas (Tríades) usando <strong>apenas as notas da Escala Maior</strong>, nascem os 7 acordes do Campo Harmônico. A natureza dita que eles terão sempre esta configuração:</p>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">Grau 1º</span>
+                            <span class="text-emerald-700 font-bold block mb-1">Maior</span>
+                            <span class="text-xl font-black text-slate-800">C</span>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">Grau 2º</span>
+                            <span class="text-blue-700 font-bold block mb-1">menor</span>
+                            <span class="text-xl font-black text-slate-800">Dm</span>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">Grau 3º</span>
+                            <span class="text-blue-700 font-bold block mb-1">menor</span>
+                            <span class="text-xl font-black text-slate-800">Em</span>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">Grau 4º</span>
+                            <span class="text-emerald-700 font-bold block mb-1">Maior</span>
+                            <span class="text-xl font-black text-slate-800">F</span>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">Grau 5º</span>
+                            <span class="text-emerald-700 font-bold block mb-1">Maior</span>
+                            <span class="text-xl font-black text-slate-800">G</span>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl text-center">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">Grau 6º</span>
+                            <span class="text-blue-700 font-bold block mb-1">menor</span>
+                            <span class="text-xl font-black text-slate-800">Am</span>
+                        </div>
+                        <div class="bg-rose-50 border border-rose-200 p-3 rounded-xl text-center col-span-2 md:col-span-2">
+                            <span class="text-xs font-bold text-slate-500 block mb-1">Grau 7º</span>
+                            <span class="text-rose-600 font-bold block mb-1">diminuto</span>
+                            <span class="text-xl font-black text-slate-800">Bdim</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secção 5: Funções Harmónicas -->
+                <div class="bg-white p-6 rounded-2xl border border-amber-100 shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <span class="bg-amber-100 text-amber-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">5</span> 
+                        A Magia: Funções Harmónicas
+                    </h2>
+                    <p class="mb-4 text-sm text-slate-600">Por que as músicas nos fazem sentir emoções? Porque cada acorde do Campo Harmônico tem uma "função", um papel na história que a música conta.</p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div class="text-2xl mt-1">🏠</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">Tónica (Repouso)</h4>
+                                <p class="text-sm text-slate-600">Acordes: <strong>1º, 3º e 6º graus</strong> (Ex: C, Em, Am). Trazem sensação de paz, conclusão e estabilidade. É onde a música costuma começar e acabar.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div class="text-2xl mt-1">🚶‍♂️</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">Subdominante (Afastamento)</h4>
+                                <p class="text-sm text-slate-600">Acordes: <strong>4º e 2º graus</strong> (Ex: F, Dm). Sensação de movimento, de sair de casa para dar um passeio. Prepara o terreno para o clímax.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                            <div class="text-2xl mt-1">⚡</div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">Dominante (Tensão)</h4>
+                                <p class="text-sm text-slate-600">Acordes: <strong>5º e 7º graus</strong> (Ex: G, Bdim). O clímax! Cria uma tensão enorme que "exige" ser resolvida voltando para a Tónica (Casa).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secção 6: Tirar de Ouvido -->
+                <div class="bg-white p-6 rounded-2xl border border-cyan-100 shadow-sm mt-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-cyan-100 text-cyan-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">6</span>
+                        O Segredo de Tocar de Ouvido
+                    </h2>
+                    <p class="mb-4">Tocar de ouvido parece magia, mas é pura lógica e treino! Quando você domina os Campos Harmônicos, 80% do trabalho de adivinhação desaparece. Veja o passo a passo infalível:</p>
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-start">
+                            <div class="text-xl mt-1">🎸</div>
+                            <div>
+                                <strong class="text-cyan-700 block mb-1">Passo 1: O Baixo</strong>
+                                <span class="text-sm text-slate-600">Ouça a música e tente encontrar a nota mais grave (o baixo) na sexta ou quinta corda do violão. Vá tocando casa por casa até achar a nota que "casa" perfeitamente com a música. Essa nota geralmente dá o nome ao acorde.</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-start">
+                            <div class="text-xl mt-1">🎭</div>
+                            <div>
+                                <strong class="text-cyan-700 block mb-1">Passo 2: Feliz ou Triste?</strong>
+                                <span class="text-sm text-slate-600">Descobriu a nota base? Agora monte o acorde Maior e depois o Menor com ela. Qual combina mais com a emoção da música naquele segundo? Se for uma balada melancólica, provavelmente é menor.</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-start">
+                            <div class="text-xl mt-1">📖</div>
+                            <div>
+                                <strong class="text-cyan-700 block mb-1">Passo 3: Encaixe no Dicionário</strong>
+                                <span class="text-sm text-slate-600">Descobriu 2 ou 3 acordes da música? (Ex: <b>C</b>, <b>F</b> e <b>G</b>). Vá olhar as nossas tabelas de Campos Harmônicos! Em qual deles esses 3 acordes aparecem juntos? Acertou: no <b>Campo de Dó</b>! Agora você já sabe que os próximos acordes da música provavelmente serão os outros irmãos (Dm, Em ou Am). Não precisa testar ao acaso!</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-start">
+                            <div class="text-xl mt-1">🔮</div>
+                            <div>
+                                <strong class="text-cyan-700 block mb-1">Passo 4: Preveja o Futuro</strong>
+                                <span class="text-sm text-slate-600">A música criou uma tensão enorme? O cantor vai dar aquele agudo antes do refrão? Prepare o acorde <b>Dominante</b> (Grau 5º)! O refrão explodiu e a música "chegou em casa e relaxou"? É hora de bater no acorde da <b>Tônica</b> (Grau 1º)!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secção 7: Sétimas e Extensões -->
+                <div class="bg-white p-6 rounded-2xl border border-fuchsia-100 shadow-sm mt-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-fuchsia-100 text-fuchsia-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">7</span>
+                        O Tempero da Música (Sétimas e Extensões)
+                    </h2>
+                    <p class="mb-4">Se os acordes Maiores e Menores são o "arroz e feijão", as Sétimas (7), Nonas (9) e Quartas Suspensas (sus4) são o <strong>tempero</strong>. Elas adicionam uma "cor" especial à emoção do acorde básico.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
+                        <div class="bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-200">
+                            <div class="text-xl font-black text-fuchsia-700 mb-1">C7 / G7</div>
+                            <h4 class="font-bold text-slate-800 text-sm">Sétima (Dominante)</h4>
+                            <p class="text-xs text-slate-600 mt-2">Aumenta a tensão brutalmente! Parece que o acorde está "pedindo" para mudar e resolver. É o DNA absoluto do Blues, MPB e Bossa Nova.</p>
+                        </div>
+                        <div class="bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-200">
+                            <div class="text-xl font-black text-fuchsia-700 mb-1">Cmaj7 (7M)</div>
+                            <h4 class="font-bold text-slate-800 text-sm">Sétima Maior</h4>
+                            <p class="text-xs text-slate-600 mt-2">Um som sofisticado, sonhador, aveludado e relaxante. Dá uma sensação de flutuar no ar. Marca registrada do Jazz, MPB e do estilo Lo-Fi.</p>
+                        </div>
+                        <div class="bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-200">
+                            <div class="text-xl font-black text-fuchsia-700 mb-1">Csus4 / Asus2</div>
+                            <h4 class="font-bold text-slate-800 text-sm">Acordes Suspensos</h4>
+                            <p class="text-xs text-slate-600 mt-2">Retiramos a 3ª do acorde, então eles não são nem felizes nem tristes. Ficam "suspensos" no vazio, aguardando uma definição. Lindos para dedilhados no Pop e Rock.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secção 8: Ritmo -->
+                <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm mt-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-orange-100 text-orange-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">8</span>
+                        Dominando o Ritmo (A Mão Direita)
+                    </h2>
+                    <p class="mb-4">Não adianta saber as posições com a mão esquerda se você não souber o ritmo com a mão direita! A batida é a "pulsação vital" da música.</p>
+                    <div class="flex flex-col sm:flex-row items-center gap-6 bg-orange-50 p-4 rounded-xl border border-orange-200">
+                        <div class="text-5xl drop-shadow-sm">⏱️</div>
+                        <div>
+                            <h4 class="font-bold text-orange-800 text-lg mb-1">O que é o Compasso 4/4?</h4>
+                            <p class="text-sm text-orange-900 leading-relaxed mb-3">Cerca de 90% das músicas Pop e Rock usam o compasso 4/4. Significa que a banda conta mentalmente "1, 2, 3, 4" repetidamente. O "1" é sempre a batida mais forte (Acentuação). Experimente ligar o rádio e contar "<b>1</b>, 2, 3, 4" batendo o pé no chão.</p>
+                            <button onclick="mostrarMetronomo()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition text-sm flex items-center gap-2 justify-center w-full sm:w-auto">
+                                Praticar agora no Metrónomo &rarr;
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secção 9: Biblioteca de Batidas -->
+                <div class="bg-white p-6 rounded-2xl border border-teal-100 shadow-sm mt-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-teal-100 text-teal-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">9</span>
+                        A Biblioteca de Batidas (Ritmos)
+                    </h2>
+                    <p class="mb-4">Abaixo estão os padrões rítmicos mais populares do mundo. A legenda é simples: <strong>&darr; (Tocar para baixo)</strong>, <strong>&uarr; (Tocar para cima)</strong> e <strong>X (Abafar as cordas)</strong>.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-teal-50 p-4 rounded-xl border border-teal-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-teal-800 text-lg">1. Batida Pop / Rock (Fogueira)</h3>
+                                <span class="text-[10px] font-bold bg-teal-200 text-teal-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">A batida mais versátil de todas. Se dominar este ritmo, toca 80% das músicas acústicas ocidentais.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">1</span></div>
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">2</span></div>
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-teal-600">&uarr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">e</span></div>
+                                <div class="w-4"></div> 
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-teal-600">&uarr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">3</span></div>
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">4</span></div>
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-teal-600">&uarr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">e</span></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-teal-50 p-4 rounded-xl border border-teal-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-teal-800 text-lg">2. Folk / Indie Acústico</h3>
+                                <span class="text-[10px] font-bold bg-teal-200 text-teal-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">O clássico ritmo de sucessos como <em>Wonderwall</em>. O segredo é o movimento constante da mão direita: mesmo quando não bate nas cordas, a mão continua a subir e descer.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">1</span></div>
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">2</span></div>
+                                <div class="w-4"></div> 
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-teal-600">&uarr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">e</span></div>
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-teal-600">&uarr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">3</span></div>
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">4</span></div>
+                                <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-teal-600">&uarr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">e</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secção 10: A GRANDE BIBLIOTECA DE DEDILHADOS -->
+                <div class="bg-white p-6 rounded-2xl border border-violet-100 shadow-sm mt-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-violet-100 text-violet-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">10</span>
+                        A Grande Biblioteca de Dedilhados (Arpejos)
+                    </h2>
+                    <p class="mb-4">O dedilhado traz delicadeza e emoção à música. Em vez de usar palheta, puxamos as cordas uma a uma. Na linguagem internacional, os dedos da mão direita são chamados de <strong>P-I-M-A</strong>:</p>
+                    
+                    <div class="flex flex-wrap gap-3 mb-6 justify-center sm:justify-start text-sm">
+                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">P</strong> = Polegar <span class="text-slate-500">(Toca os Baixos nas cordas 6, 5 ou 4)</span></div>
+                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">I</strong> = Indicador <span class="text-slate-500">(Toca sempre a corda 3 - Sol)</span></div>
+                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">M</strong> = Médio <span class="text-slate-500">(Toca sempre a corda 2 - Si)</span></div>
+                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">A</strong> = Anelar <span class="text-slate-500">(Toca sempre a corda 1 - Mi)</span></div>
+                    </div>
+
+                    <p class="mb-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                        <strong>Dica de Ouro:</strong> O Polegar é o chefe! Ele dita o ritmo e o acorde. Se o acorde for Dó (C) ou Lá menor (Am), o Polegar toca na 5ª corda. Se for Mi menor (Em) ou Sol (G), toca na 6ª corda. Se for Ré (D), toca na 4ª corda.
+                    </p>
+
+                    <div class="space-y-4">
+                        <!-- Padrão 1: O Básico Ascendente -->
+                        <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-violet-800 text-lg">1. O Básico Ascendente</h3>
+                                <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">O primeiro padrão que qualquer violonista aprende. A mão simplesmente desce das cordas graves para as agudas.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">A</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Padrão 2: O Básico Descendente -->
+                        <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-violet-800 text-lg">2. O Básico Descendente</h3>
+                                <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">O oposto do anterior. Começa no baixo (Polegar), salta direto para a corda mais fina e sobe.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">A</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Padrão 3: Vai e Vem 6/8 -->
+                        <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-violet-800 text-lg">3. O "Vai e Vem" (Hallelujah)</h3>
+                                <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">6/8</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Ritmo perfeito para valsas ou compassos 6/8. É a batida icónica da música "Hallelujah" ou "House of the Rising Sun". A mão desce e volta a subir.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">A</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Padrão 4: O Romântico -->
+                        <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-violet-800 text-lg">4. O Romântico (8 Notas)</h3>
+                                <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Muito usado em baladas Pop dos anos 80 e 90 (Ex: "Everybody Hurts"). É um dedilhado longo, onde o dedo Indicador trabalha o dobro.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">A</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Padrão 5: A Valsa em Bloco -->
+                        <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-violet-800 text-lg">5. A Valsa em Bloco</h3>
+                                <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">3/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Toca-se o Polegar sozinho no tempo 1, e depois os dedos [IMA] puxam as 3 cordas de baixo <strong>ao mesmo tempo</strong> nos tempos 2 e 3.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
+                                <div class="w-20 h-12 bg-indigo-100 border border-indigo-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-lg font-black text-indigo-700">I M A</span></div>
+                                <div class="w-20 h-12 bg-indigo-100 border border-indigo-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-lg font-black text-indigo-700">I M A</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Padrão 6: Travis Picking Básico -->
+                        <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-violet-800 text-lg">6. Travis Picking (Folk/Country)</h3>
+                                <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">O segredo máximo do Folk Americano. O Polegar nunca pára de alternar entre cordas graves, enquanto o Indicador e o Médio preenchem os espaços.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-slate-200 border border-slate-400 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-800">P</span><span class="text-[9px] absolute mt-8">Alt</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Padrão 7: Dedilhado Duplo -->
+                        <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-violet-800 text-lg">7. O Dedilhado Simultâneo</h3>
+                                <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">O Polegar e o Anelar tocam ao mesmo tempo nos extremos (grave e agudo). Muito usado na introdução de "Dust in the Wind" ou "Blackbird".</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-16 h-12 bg-indigo-100 border border-indigo-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-lg font-black text-indigo-800">P+A</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                                <div class="w-12 h-12 bg-slate-200 border border-slate-400 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-800">P</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Padrão 8: O "Conta-Gotas" -->
+                        <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-violet-800 text-lg">8. O "Conta-Gotas"</h3>
+                                <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">3/4</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Dá um ritmo misterioso, pingando notas ("Shape of my Heart"). Em vez de descer em ordem, salta as cordas de forma alternada.</p>
+                            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">A</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">M</span></div>
+                                <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Secção 11: Rotinas de Treino -->
+                <div class="bg-white p-6 rounded-2xl border border-lime-100 shadow-sm mt-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-lime-100 text-lime-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">11</span>
+                        Rotinas de Treino (Exercícios)
+                    </h2>
+                    <p class="mb-4">Chegou a hora de juntar tudo! Ligue o Metrónomo, mantenha o ritmo constante e treine estas famosas progressões de acordes. O objetivo não é ser rápido, é não parar a mão direita ao trocar os acordes!</p>
+                    
+                    <div class="space-y-4">
+                        <!-- Exercicio 1 -->
+                        <div class="bg-lime-50 p-5 rounded-xl border border-lime-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-lime-200 text-lime-800 text-xs font-bold px-3 py-1 rounded-bl-lg">Nível 1</div>
+                            <h3 class="font-bold text-lime-900 text-lg mb-2">A Progressão Pop Universal</h3>
+                            <p class="text-sm text-slate-600 mb-3">Milhares de músicas usam exatamente esta sequência (I - V - vi - IV).<br><strong>Instrução:</strong> Use a <span class="font-bold text-teal-700">Batida 1 (Pop/Rock)</span>. Faça 1 batida completa para cada acorde.</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md">⏱️ Tempo recomendado: 5 minutos</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: 60 BPM</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700">
+                                <div class="w-16 h-16 bg-white border-2 border-lime-300 rounded-xl flex items-center justify-center shadow-sm text-lime-700">C</div>
+                                <span class="text-lime-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-300 rounded-xl flex items-center justify-center shadow-sm text-lime-700">G</div>
+                                <span class="text-lime-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-300 rounded-xl flex items-center justify-center shadow-sm text-lime-700">Am</div>
+                                <span class="text-lime-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-300 rounded-xl flex items-center justify-center shadow-sm text-lime-700">F</div>
+                            </div>
+                        </div>
+
+                        <!-- Exercicio 2 -->
+                        <div class="bg-lime-50 p-5 rounded-xl border border-lime-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-lime-300 text-lime-800 text-xs font-bold px-3 py-1 rounded-bl-lg">Nível 2</div>
+                            <h3 class="font-bold text-lime-900 text-lg mb-2">Treino de Dedilhado (Arpejos)</h3>
+                            <p class="text-sm text-slate-600 mb-3">Uma sequência melancólica ideal para treinar a independência dos dedos da mão direita.<br><strong>Instrução:</strong> Use o <span class="font-bold text-violet-700">Dedilhado 3 (Vai e Vem)</span>. Atenção ao baixo (Polegar): no Em toque a 6ª corda, no C toque a 5ª, no G toque a 6ª, no D toque a 4ª.</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md">⏱️ Tempo recomendado: 10 a 15 min diários</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: 70 BPM</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700">
+                                <div class="w-16 h-16 bg-white border-2 border-lime-400 rounded-xl flex items-center justify-center shadow-sm text-lime-700">Em</div>
+                                <span class="text-lime-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-400 rounded-xl flex items-center justify-center shadow-sm text-lime-700">C</div>
+                                <span class="text-lime-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-400 rounded-xl flex items-center justify-center shadow-sm text-lime-700">G</div>
+                                <span class="text-lime-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-400 rounded-xl flex items-center justify-center shadow-sm text-lime-700">D</div>
+                            </div>
+                        </div>
+
+                        <!-- Exercicio 3 -->
+                        <div class="bg-lime-50 p-5 rounded-xl border border-lime-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-lime-400 text-lime-900 text-xs font-bold px-3 py-1 rounded-bl-lg">Nível 3</div>
+                            <h3 class="font-bold text-lime-900 text-lg mb-2">Maratona de Pestanas (Arrocha)</h3>
+                            <p class="text-sm text-slate-600 mb-3">Desafio de resistência e ritmo para a mão esquerda.<br><strong>Instrução:</strong> Use a <span class="font-bold text-teal-700">Batida 4 (Arrocha/Festa)</span> com a acentuação abafada.</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md">⏱️ Tempo recomendado: 3 min (ou até cansar a mão)</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: 90 BPM</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700">
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">A</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">E</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800 text-xl">F#m</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">D</div>
+                            </div>
+                        </div>
+
+                        <!-- Exercicio 4 (NOVO) -->
+                        <div class="bg-lime-50 p-5 rounded-xl border border-lime-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-emerald-300 text-emerald-900 text-xs font-bold px-3 py-1 rounded-bl-lg">Nível 4</div>
+                            <h3 class="font-bold text-lime-900 text-lg mb-2">Iniciação à Bossa Nova / Jazz</h3>
+                            <p class="text-sm text-slate-600 mb-3">Uma sequência sofisticada (I - vi - ii - V) focada nos acordes com sétima.<br><strong>Instrução:</strong> Use a <span class="font-bold text-teal-700">Batida 6 (Bossa Nova / Samba)</span>. O desafio é coordenar o polegar com o "puxão" dos outros dedos simultaneamente.</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md">⏱️ Tempo recomendado: 8 minutos</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: 65 BPM</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700">
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">C</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800 text-xl">Am7</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800 text-xl">Dm7</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">G7</div>
+                            </div>
+                        </div>
+
+                        <!-- Exercicio 5 (NOVO) -->
+                        <div class="bg-lime-50 p-5 rounded-xl border border-lime-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-emerald-400 text-emerald-900 text-xs font-bold px-3 py-1 rounded-bl-lg">Nível 5</div>
+                            <h3 class="font-bold text-lime-900 text-lg mb-2">O Desafio do Contratempo (Reggae)</h3>
+                            <p class="text-sm text-slate-600 mb-3">O foco não são os acordes, é a mão direita! Você deve bater nas cordas exatamente onde NÃO há o clique do metrónomo (no "e").<br><strong>Instrução:</strong> Use a <span class="font-bold text-teal-700">Batida 5 (Reggae / Ska)</span>.</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md">⏱️ Tempo recomendado: 5 a 10 minutos</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: 75 BPM</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700">
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">A</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800 text-xl">Bm</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800 text-xl">C#m</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800 text-xl">Bm</div>
+                            </div>
+                        </div>
+
+                        <!-- Exercicio 6 (NOVO) -->
+                        <div class="bg-lime-50 p-5 rounded-xl border border-lime-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Nível 6</div>
+                            <h3 class="font-bold text-lime-900 text-lg mb-2">O Clássico Folk (Travis Picking)</h3>
+                            <p class="text-sm text-slate-600 mb-3">O polegar deve atuar como se fosse um baixista independente, alternando cordas graves enquanto os outros dedos criam a melodia.<br><strong>Instrução:</strong> Use o <span class="font-bold text-violet-700">Dedilhado 6 (Travis Picking)</span>.</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md">⏱️ Tempo recomendado: 15 minutos</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: Comece a 60, suba até 90 BPM</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700">
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">G</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">D</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">Em</div>
+                                <span class="text-lime-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-lime-500 rounded-xl flex items-center justify-center shadow-sm text-lime-800">C</div>
+                            </div>
+                        </div>
+
+                        <!-- Exercicio 7 (NOVO) -->
+                        <div class="bg-lime-50 p-5 rounded-xl border border-lime-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Nível 7</div>
+                            <h3 class="font-bold text-lime-900 text-lg mb-2">A Valsa Melancólica (Compasso 3/4)</h3>
+                            <p class="text-sm text-slate-600 mb-3">Sair da zona de conforto do compasso 4/4 é essencial. Sinta a "dança" em 3 tempos (1, 2, 3... 1, 2, 3...). Traz uma tensão fantástica quando passa pelo E7.<br><strong>Instrução:</strong> Use o <span class="font-bold text-violet-700">Dedilhado 5 (Valsa em Bloco)</span>. Configure o metrónomo para compasso "3".</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md">⏱️ Tempo recomendado: 5 minutos</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: 100 BPM</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700">
+                                <div class="w-16 h-16 bg-white border-2 border-teal-400 rounded-xl flex items-center justify-center shadow-sm text-teal-800">Am</div>
+                                <span class="text-teal-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-400 rounded-xl flex items-center justify-center shadow-sm text-teal-800">Dm</div>
+                                <span class="text-teal-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-400 rounded-xl flex items-center justify-center shadow-sm text-teal-800">E7</div>
+                                <span class="text-teal-400">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-400 rounded-xl flex items-center justify-center shadow-sm text-teal-800">Am</div>
+                            </div>
+                        </div>
+
+                        <!-- Exercicio 8 (NOVO) -->
+                        <div class="bg-lime-50 p-5 rounded-xl border border-lime-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-teal-700 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Nível 8</div>
+                            <h3 class="font-bold text-lime-900 text-lg mb-2">Treino do "Caminhante" (Mobilidade)</h3>
+                            <p class="text-sm text-slate-600 mb-3">Este é um teste de resistência e mobilidade mental. Mistura acordes de diferentes campos harmónicos. Ideal para praticar mudanças rápidas no braço do violão.<br><strong>Instrução:</strong> Use a <span class="font-bold text-teal-700">Batida 2 (Folk / Indie)</span>. Não se preocupe se errar, o importante é manter o ritmo e continuar a bater!</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md">⏱️ Tempo recomendado: 10 minutos diários</span>
+                                <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: 85 BPM</span>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700 mb-2">
+                                <div class="w-16 h-16 bg-white border-2 border-teal-500 rounded-xl flex items-center justify-center shadow-sm text-teal-800">C</div>
+                                <span class="text-teal-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-500 rounded-xl flex items-center justify-center shadow-sm text-teal-800">Am</div>
+                                <span class="text-teal-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-500 rounded-xl flex items-center justify-center shadow-sm text-teal-800">F</div>
+                                <span class="text-teal-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-500 rounded-xl flex items-center justify-center shadow-sm text-teal-800">G</div>
+                            </div>
+                            <div class="flex items-center gap-2 sm:gap-4 justify-center sm:justify-start font-black text-2xl text-slate-700">
+                                <span class="text-teal-500">Logo a seguir &rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-500 rounded-xl flex items-center justify-center shadow-sm text-teal-800">D</div>
+                                <span class="text-teal-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-500 rounded-xl flex items-center justify-center shadow-sm text-teal-800">Bm</div>
+                                <span class="text-teal-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-500 rounded-xl flex items-center justify-center shadow-sm text-teal-800">G</div>
+                                <span class="text-teal-500">&rarr;</span>
+                                <div class="w-16 h-16 bg-white border-2 border-teal-500 rounded-xl flex items-center justify-center shadow-sm text-teal-800">A</div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-6">
+                            <button onclick="mostrarMetronomo()" class="bg-lime-600 hover:bg-lime-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition flex items-center gap-2 mx-auto">
+                                <span>⏱️</span> Abrir Metrónomo e Treinar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="irDaTeoriaParaExercicios()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-xl transition duration-200 shadow-md">
+                    Ir para os Exercícios Práticos &rarr;
+                </button>
+                <button onclick="voltarParaInicio()" class="w-full sm:w-auto text-slate-500 hover:text-slate-800 font-medium py-3 px-8 transition">
+                    Voltar ao Menu
+                </button>
+            </div>
+        </div>
+
+        <!-- Tela de Categorias do Dicionário -->
+        <div id="dicionario-categorias-screen" class="hidden fade-in w-full">
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-2 text-center">Dicionário</h1>
+            <p class="text-slate-500 mb-6 text-center">Selecione uma categoria:</p>
+            
+            <div class="space-y-3 mb-6 max-h-[60vh] overflow-y-auto pr-2" id="categorias-container">
+                <!-- Botões gerados via JavaScript -->
+            </div>
+
+            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition text-center">
+                &larr; Voltar
+            </button>
+        </div>
+
+        <!-- Tela de Notas do Dicionário (Com as Palhetas e SVG) -->
+        <div id="dicionario-notas-screen" class="hidden text-center fade-in w-full">
+            <h1 id="dicionario-title" class="text-2xl font-bold text-slate-800 mb-6">Acordes</h1>
+            
+            <!-- Palhetas Container -->
+            <div class="flex flex-wrap justify-center gap-3 mb-8" id="palhetas-container">
+                <!-- Palhetas geradas via JavaScript -->
+            </div>
+
+            <p id="dicionario-chord-name" class="text-lg font-medium text-slate-700 mb-6 min-h-[2rem]">
+                Selecione uma nota acima.
+            </p>
+
+            <div id="dicionario-chord-diagram" class="flex justify-center mb-8 min-h-[160px]">
+                <!-- O SVG do acorde aparecerá aqui -->
+            </div>
+
+            <button onclick="voltarParaDicionarioCategorias()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar às Categorias
+            </button>
+        </div>
+
+        <!-- Tela de Escolha de Quantidade (Menu Secundário do Quiz) -->
+        <div id="quiz-options-screen" class="hidden text-center fade-in">
+            <h1 class="text-3xl font-extrabold text-indigo-600 mb-2">Modo Quiz</h1>
+            <p class="text-slate-500 mb-6">Quantos acordes quer tentar adivinhar?</p>
+            
+            <div class="space-y-4 mb-6">
+                <button onclick="iniciarQuiz(10)" class="w-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow">
+                    10 Perguntas
+                </button>
+                <button onclick="iniciarQuiz(15)" class="w-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow">
+                    15 Perguntas
+                </button>
+                <button onclick="iniciarQuiz(25)" class="w-full bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow">
+                    Todas as 25 Perguntas
+                </button>
+            </div>
+
+            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar
+            </button>
+        </div>
+
+        <!-- Tela de Escolha de Campo Harmônico -->
+        <div id="campos-screen" class="hidden text-center fade-in">
+            <h1 class="text-3xl font-extrabold text-indigo-600 mb-2">Campos Harmônicos</h1>
+            <p class="text-slate-500 mb-6">Escolha um tom para ver e praticar os acordes:</p>
+            
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button onclick="mostrarAcordesDoCampo('Dó')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Dó (C)</button>
+                <button onclick="mostrarAcordesDoCampo('Ré')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Ré (D)</button>
+                <button onclick="mostrarAcordesDoCampo('Mi')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Mi (E)</button>
+                <button onclick="mostrarAcordesDoCampo('Fá')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Fá (F)</button>
+                <button onclick="mostrarAcordesDoCampo('Sol')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Sol (G)</button>
+                <button onclick="mostrarAcordesDoCampo('Lá')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Lá (A)</button>
+                <button onclick="mostrarAcordesDoCampo('Si')" class="col-span-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Si (B)</button>
+            </div>
+            
+            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar
+            </button>
+        </div>
+
+        <!-- Tela de Visualização dos Acordes do Campo -->
+        <div id="estudo-campo-screen" class="hidden text-center fade-in w-full">
+            <h1 id="campo-title" class="text-3xl font-extrabold text-indigo-600 mb-2">Campo Harmônico</h1>
+            <p class="text-slate-500 mb-8">Estude os desenhos dos acordes desta tonalidade:</p>
+            
+            <div id="campo-chords-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
+                <!-- Os acordes aparecerão aqui dinamicamente -->
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                <button onclick="voltarParaCampos()" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 px-4 rounded-xl transition shadow-sm border border-indigo-200">
+                    Escolher Outro Tom
+                </button>
+                <button onclick="voltarParaInicio()" class="flex-1 text-slate-500 hover:text-slate-800 font-medium py-3 px-4 transition border border-transparent">
+                    Voltar ao Início
+                </button>
+            </div>
+        </div>
+
+        <!-- Tela de Menú de Teoria e Exercícios -->
+        <div id="teoria-menu-screen" class="hidden text-center fade-in w-full">
+            <h1 class="text-3xl font-extrabold text-indigo-600 mb-2">Escalas e Campos</h1>
+            <p class="text-slate-500 mb-6">Escolha uma tonalidade para aprender e praticar:</p>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button onclick="abrirAula('Dó')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Dó (C)</button>
+                <button onclick="abrirAula('Ré')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Ré (D)</button>
+                <button onclick="abrirAula('Mi')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Mi (E)</button>
+                <button onclick="abrirAula('Fá')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Fá (F)</button>
+                <button onclick="abrirAula('Sol')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Sol (G)</button>
+                <button onclick="abrirAula('Lá')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Lá (A)</button>
+                <button onclick="abrirAula('Si')" class="col-span-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-3 rounded-xl transition shadow-sm border border-indigo-200">Si (B)</button>
+            </div>
+            
+            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar
+            </button>
+        </div>
+
+        <!-- Tela de Aula (Teoria e Exercício Específico) -->
+        <div id="aula-screen" class="hidden text-center fade-in w-full max-w-2xl mx-auto">
+            <h1 id="aula-title" class="text-3xl font-extrabold text-indigo-600 mb-2">Tonalidade de Dó</h1>
+            <p class="text-slate-500 mb-6">Aprenda a escala e o campo harmónico.</p>
+
+            <!-- Escala Maior -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 mb-6">
+                <h2 class="text-xl font-bold text-slate-800 mb-3">1. A Escala Maior</h2>
+                <p class="text-sm text-slate-600 mb-4">Fórmula: Tom - Tom - Semitom - Tom - Tom - Tom - Semitom.</p>
+                <div id="aula-escala-container" class="flex flex-wrap justify-center gap-2">
+                    <!-- Notas geradas via JS -->
+                </div>
+            </div>
+
+            <!-- Campo Harmónico -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 mb-6">
+                <h2 class="text-xl font-bold text-slate-800 mb-3">2. O Campo Harmônico</h2>
+                <p class="text-sm text-slate-600 mb-4">Regra dos graus: Maior, menor, menor, Maior, Maior, menor, diminuto.</p>
+                <div id="aula-campo-container" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    <!-- Acordes gerados via JS -->
+                </div>
+            </div>
+
+            <!-- Botão de Exercício -->
+            <button onclick="iniciarMiniQuiz()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md mb-4 flex items-center justify-center gap-2">
+                <span>🧠</span> Fazer Exercício Prático
+            </button>
+
+            <button onclick="voltarParaTeoriaMenu()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar às Tonalidades
+            </button>
+        </div>
+
+        <!-- Tela do Metrônomo -->
+        <div id="metronomo-screen" class="hidden text-center fade-in w-full">
+            <h1 class="text-3xl font-normal text-slate-800 mb-8 text-left">Metrónomo online</h1>
+            
+            <div class="bg-white rounded-md p-6 mb-8 border border-slate-200 shadow-sm max-w-md mx-auto">
+                
+                <div id="beat-indicators" class="flex justify-center gap-4 mb-8 h-4">
+                    <div class="w-4 h-4 rounded-full bg-slate-200"></div>
+                    <div class="w-4 h-4 rounded-full bg-slate-200"></div>
+                    <div class="w-4 h-4 rounded-full bg-slate-200"></div>
+                    <div class="w-4 h-4 rounded-full bg-slate-200"></div>
+                </div>
+                
+                <div class="flex items-center gap-4 mb-8">
+                    <button onclick="mudarBPM(-1)" class="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition shrink-0">
+                        <span class="text-xl font-medium leading-none mb-1">-</span>
+                    </button>
+                    <input type="range" id="bpm-slider" min="40" max="220" value="100" class="metronome-slider" oninput="atualizarBPM(this.value)">
+                    <button onclick="mudarBPM(1)" class="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition shrink-0">
+                        <span class="text-xl font-medium leading-none mb-1">+</span>
+                    </button>
+                </div>
+
+                <div class="text-4xl font-normal text-slate-700 mb-8">
+                    <span id="bpm-display">100</span> BPM
+                </div>
+                
+                <div class="flex flex-col gap-3 max-w-[200px] mx-auto mb-6">
+                    <button id="btn-comecar" onclick="toggleMetronomo()" class="w-full border border-slate-300 text-slate-700 py-2 px-4 rounded hover:bg-slate-50 transition tracking-wide text-sm font-medium">
+                        COMEÇAR
+                    </button>
+                    <button onclick="marcarTempo()" class="w-full border border-slate-300 text-slate-700 py-2 px-4 rounded hover:bg-slate-50 transition tracking-wide text-sm font-medium">
+                        MARCAR TEMPO
+                    </button>
+                </div>
+
+                <div class="text-center text-sm font-medium text-slate-500 mb-8 bg-slate-50 py-2 rounded-lg border border-slate-100 mx-auto max-w-[200px]">
+                    Treino: <span id="practice-timer" class="font-bold text-indigo-600 text-lg ml-1">00:00</span>
+                </div>
+
+                <div class="flex justify-center items-center gap-2 mt-4">
+                    <span class="text-slate-400 mr-2 cursor-pointer hover:text-slate-600">&lt;</span>
+                    <div id="compassos-container" class="flex gap-2">
+                        <button onclick="mudarCompasso(2)" class="compasso-btn w-10 h-10 rounded-full bg-slate-200 text-white font-medium flex items-center justify-center transition" data-compasso="2">2</button>
+                        <button onclick="mudarCompasso(3)" class="compasso-btn w-10 h-10 rounded-full bg-slate-200 text-white font-medium flex items-center justify-center transition" data-compasso="3">3</button>
+                        <button onclick="mudarCompasso(4)" class="compasso-btn w-10 h-10 rounded-full bg-green-500 text-white font-medium flex items-center justify-center transition" data-compasso="4">4</button>
+                        <button onclick="mudarCompasso(5)" class="compasso-btn w-10 h-10 rounded-full bg-slate-200 text-white font-medium flex items-center justify-center transition" data-compasso="5">5</button>
+                        <button onclick="mudarCompasso(6)" class="compasso-btn w-10 h-10 rounded-full bg-slate-200 text-white font-medium flex items-center justify-center transition" data-compasso="6">6</button>
+                    </div>
+                    <span class="text-slate-400 ml-2 cursor-pointer hover:text-slate-600">&gt;</span>
+                </div>
+            </div>
+
+            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar
+            </button>
+        </div>
+
+        <!-- Tela do Quiz -->
+        <div id="quiz-screen" class="hidden">
+            <h1 class="text-3xl font-extrabold text-indigo-600 text-center mb-6">Quiz de Acordes</h1>
+            
+            <div class="mb-4 flex justify-between items-center">
+                <span id="progress-text" class="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+                    Pergunta 1 de 5
+                </span>
+                <span id="timer-text" class="text-sm font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-200 shadow-sm transition-colors duration-300">
+                    ⏱ 10s
+                </span>
+            </div>
+
+            <div class="w-full bg-slate-200 rounded-full h-2.5 mb-8">
+                <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 20%"></div>
+            </div>
+
+            <h2 id="question-text" class="text-xl font-semibold text-slate-800 text-center mb-4">
+                Que acorde é este?
+            </h2>
+
+            <div id="chord-diagram" class="flex justify-center mb-6 min-h-[160px]">
+                <!-- O SVG do acorde aparecerá aqui -->
+            </div>
+
+            <div id="options-container" class="space-y-3">
+                <!-- Os botões de opções aparecerão aqui -->
+            </div>
+        </div>
+
+        <!-- Tela de Resultados -->
+        <div id="result-screen" class="hidden text-center fade-in">
+            <h1 class="text-4xl font-extrabold text-slate-800 mb-2">Fim do Quiz!</h1>
+            <p class="text-slate-500 mb-6">Aqui está o seu desempenho:</p>
+            
+            <div class="bg-indigo-50 rounded-xl p-6 mb-6 inline-block w-full">
+                <span class="block text-sm font-semibold text-indigo-600 uppercase tracking-wider mb-1">A sua pontuação</span>
+                <span id="score-text" class="text-5xl font-black text-indigo-700">0 / 5</span>
+            </div>
+
+            <p id="feedback-message" class="text-lg font-medium text-slate-700 mb-8"></p>
+
+            <button onclick="voltarParaInicio()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                Voltar ao Menu Principal
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Biblioteca Mestre de Acordes (Expandida para o Dicionário)
+        const bibliotecaAcordes = {
+            // Maiores
+            'C': { acorde: ['x', 3, 2, 0, 1, 0], dedos: [0, 3, 2, 0, 1, 0] },
+            'D': { acorde: ['x', 'x', 0, 2, 3, 2], dedos: [0, 0, 0, 1, 3, 2] },
+            'E': { acorde: [0, 2, 2, 1, 0, 0], dedos: [0, 2, 3, 1, 0, 0] },
+            'F': { acorde: [1, 3, 3, 2, 1, 1], dedos: [1, 3, 4, 2, 1, 1], pestana: { traste: 1, cordaInicial: 0, cordaFinal: 5 } },
+            'G': { acorde: [3, 2, 0, 0, 0, 3], dedos: [2, 1, 0, 0, 0, 3] },
+            'A': { acorde: ['x', 0, 2, 2, 2, 0], dedos: [0, 0, 1, 2, 3, 0] },
+            'B': { acorde: ['x', 2, 4, 4, 4, 2], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 2, cordaInicial: 1, cordaFinal: 5 } },
+            
+            // Menores
+            'Cm': { acorde: ['x', 3, 5, 5, 4, 3], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 3, cordaInicial: 1, cordaFinal: 5 } },
+            'Dm': { acorde: ['x', 'x', 0, 2, 3, 1], dedos: [0, 0, 0, 2, 3, 1] },
+            'Em': { acorde: [0, 2, 2, 0, 0, 0], dedos: [0, 2, 3, 0, 0, 0] },
+            'Fm': { acorde: [1, 3, 3, 1, 1, 1], dedos: [1, 3, 4, 1, 1, 1], pestana: { traste: 1, cordaInicial: 0, cordaFinal: 5 } },
+            'Gm': { acorde: [3, 5, 5, 3, 3, 3], dedos: [1, 3, 4, 1, 1, 1], pestana: { traste: 3, cordaInicial: 0, cordaFinal: 5 } },
+            'Am': { acorde: ['x', 0, 2, 2, 1, 0], dedos: [0, 0, 2, 3, 1, 0] },
+            'Bm': { acorde: ['x', 2, 4, 4, 3, 2], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 2, cordaInicial: 1, cordaFinal: 5 } },
+
+            // Sustenidos Maiores
+            'C#': { acorde: ['x', 4, 6, 6, 6, 4], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 4, cordaInicial: 1, cordaFinal: 5 } },
+            'D#': { acorde: ['x', 6, 8, 8, 8, 6], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 6, cordaInicial: 1, cordaFinal: 5 } },
+            'F#': { acorde: [2, 4, 4, 3, 2, 2], dedos: [1, 3, 4, 2, 1, 1], pestana: { traste: 2, cordaInicial: 0, cordaFinal: 5 } },
+            'G#': { acorde: [4, 6, 6, 5, 4, 4], dedos: [1, 3, 4, 2, 1, 1], pestana: { traste: 4, cordaInicial: 0, cordaFinal: 5 } },
+            'A#': { acorde: ['x', 1, 3, 3, 3, 1], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 1, cordaInicial: 1, cordaFinal: 5 } },
+
+            // Sustenidos Menores
+            'C#m': { acorde: ['x', 4, 6, 6, 5, 4], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 4, cordaInicial: 1, cordaFinal: 5 } },
+            'D#m': { acorde: ['x', 6, 8, 8, 7, 6], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 6, cordaInicial: 1, cordaFinal: 5 } },
+            'F#m': { acorde: [2, 4, 4, 2, 2, 2], dedos: [1, 3, 4, 1, 1, 1], pestana: { traste: 2, cordaInicial: 0, cordaFinal: 5 } },
+            'G#m': { acorde: [4, 6, 6, 4, 4, 4], dedos: [1, 3, 4, 1, 1, 1], pestana: { traste: 4, cordaInicial: 0, cordaFinal: 5 } },
+            'A#m': { acorde: ['x', 1, 3, 3, 2, 1], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 1, cordaInicial: 1, cordaFinal: 5 } },
+
+            // Maiores com Sétima
+            'C7': { acorde: ['x', 3, 2, 3, 1, 0], dedos: [0, 3, 2, 4, 1, 0] },
+            'D7': { acorde: ['x', 'x', 0, 2, 1, 2], dedos: [0, 0, 0, 2, 1, 3] },
+            'E7': { acorde: [0, 2, 0, 1, 0, 0], dedos: [0, 2, 0, 1, 0, 0] },
+            'F7': { acorde: [1, 3, 1, 2, 1, 1], dedos: [1, 3, 1, 2, 1, 1], pestana: { traste: 1, cordaInicial: 0, cordaFinal: 5 } },
+            'G7': { acorde: [3, 2, 0, 0, 0, 1], dedos: [3, 2, 0, 0, 0, 1] },
+            'A7': { acorde: ['x', 0, 2, 0, 2, 0], dedos: [0, 0, 2, 0, 3, 0] },
+            'B7': { acorde: ['x', 2, 1, 2, 0, 2], dedos: [0, 2, 1, 3, 0, 4] },
+
+            // Menores com Sétima
+            'Cm7': { acorde: ['x', 3, 5, 3, 4, 3], dedos: [0, 1, 3, 1, 2, 1], pestana: { traste: 3, cordaInicial: 1, cordaFinal: 5 } },
+            'Dm7': { acorde: ['x', 'x', 0, 2, 1, 1], dedos: [0, 0, 0, 2, 1, 1] },
+            'Em7': { acorde: [0, 2, 0, 0, 0, 0], dedos: [0, 2, 0, 0, 0, 0] },
+            'Fm7': { acorde: [1, 3, 1, 1, 1, 1], dedos: [1, 3, 1, 1, 1, 1], pestana: { traste: 1, cordaInicial: 0, cordaFinal: 5 } },
+            'Gm7': { acorde: [3, 5, 3, 3, 3, 3], dedos: [1, 3, 1, 1, 1, 1], pestana: { traste: 3, cordaInicial: 0, cordaFinal: 5 } },
+            'Am7': { acorde: ['x', 0, 2, 0, 1, 0], dedos: [0, 0, 2, 0, 1, 0] },
+            'Bm7': { acorde: ['x', 2, 4, 2, 3, 2], dedos: [0, 1, 3, 1, 2, 1], pestana: { traste: 2, cordaInicial: 1, cordaFinal: 5 } },
+
+            // Outros (Diminutos, etc) usados nos Campos Harmônicos
+            'Bdim': { acorde: ['x', 2, 3, 4, 3, 'x'], dedos: [0, 1, 2, 4, 3, 0] },
+            'C#dim': { acorde: ['x', 4, 5, 6, 5, 'x'], dedos: [0, 1, 2, 4, 3, 0] },
+            'D#dim': { acorde: ['x', 6, 7, 8, 7, 'x'], dedos: [0, 1, 2, 4, 3, 0] },
+            'Edim': { acorde: ['x', 'x', 2, 3, 2, 3], dedos: [0, 0, 1, 3, 2, 4] },
+            'F#dim': { acorde: ['x', 'x', 4, 5, 4, 5], dedos: [0, 0, 1, 3, 2, 4] },
+            'G#dim': { acorde: ['x', 'x', 6, 7, 6, 7], dedos: [0, 0, 1, 3, 2, 4] },
+            'A#dim': { acorde: ['x', 1, 2, 3, 2, 'x'], dedos: [0, 1, 2, 4, 3, 0] },
+            'Bb': { acorde: ['x', 1, 3, 3, 3, 1], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 1, cordaInicial: 1, cordaFinal: 5 } }
+        };
+
+        // 2. Banco de Dados de Perguntas
+        const bancoDePerguntas = [
+            { acorde: bibliotecaAcordes['C'].acorde, dedos: bibliotecaAcordes['C'].dedos, opcoes: ["Dó Maior (C)", "Sol Maior (G)", "Lá Menor (Am)", "Fá Maior (F)"], respostaCorretaIndex: 0 },
+            { acorde: bibliotecaAcordes['G'].acorde, dedos: bibliotecaAcordes['G'].dedos, opcoes: ["Lá Maior (A)", "Sol Maior (G)", "Dó Maior (C)", "Mi Menor (Em)"], respostaCorretaIndex: 1 },
+            { acorde: bibliotecaAcordes['D'].acorde, dedos: bibliotecaAcordes['D'].dedos, opcoes: ["Ré Menor (Dm)", "Fá Maior (F)", "Ré Maior (D)", "Lá Maior (A)"], respostaCorretaIndex: 2 },
+            { acorde: bibliotecaAcordes['Am'].acorde, dedos: bibliotecaAcordes['Am'].dedos, opcoes: ["Lá Menor (Am)", "Mi Menor (Em)", "Dó Maior (C)", "Lá Maior (A)"], respostaCorretaIndex: 0 },
+            { acorde: bibliotecaAcordes['F'].acorde, dedos: bibliotecaAcordes['F'].dedos, pestana: bibliotecaAcordes['F'].pestana, opcoes: ["Sol Maior (G)", "Fá Maior (F)", "Fá Menor (Fm)", "Mi Maior (E)"], respostaCorretaIndex: 1 },
+            { acorde: bibliotecaAcordes['E'].acorde, dedos: bibliotecaAcordes['E'].dedos, opcoes: ["Lá Menor (Am)", "Mi Maior (E)", "Ré Maior (D)", "Fá Maior (F)"], respostaCorretaIndex: 1 },
+            { acorde: bibliotecaAcordes['A'].acorde, dedos: bibliotecaAcordes['A'].dedos, opcoes: ["Ré Maior (D)", "Lá Menor (Am)", "Lá Maior (A)", "Mi Maior (E)"], respostaCorretaIndex: 2 },
+            { acorde: bibliotecaAcordes['Dm'].acorde, dedos: bibliotecaAcordes['Dm'].dedos, opcoes: ["Ré Menor (Dm)", "Fá Maior (F)", "Lá Menor (Am)", "Ré Maior (D)"], respostaCorretaIndex: 0 },
+            { acorde: bibliotecaAcordes['Em'].acorde, dedos: bibliotecaAcordes['Em'].dedos, opcoes: ["Mi Maior (E)", "Sol Maior (G)", "Si Menor (Bm)", "Mi Menor (Em)"], respostaCorretaIndex: 3 },
+            { acorde: bibliotecaAcordes['Bm'].acorde, dedos: bibliotecaAcordes['Bm'].dedos, pestana: bibliotecaAcordes['Bm'].pestana, opcoes: ["Si Maior (B)", "Dó Menor (Cm)", "Si Menor (Bm)", "Fá Sustenido Menor (F#m)"], respostaCorretaIndex: 2 },
+            { acorde: bibliotecaAcordes['C7'].acorde, dedos: bibliotecaAcordes['C7'].dedos, opcoes: ["Dó Maior (C)", "Dó com Sétima (C7)", "Fá Maior (F)", "Sol com Sétima (G7)"], respostaCorretaIndex: 1 },
+            { acorde: bibliotecaAcordes['G7'].acorde, dedos: bibliotecaAcordes['G7'].dedos, opcoes: ["Sol Maior (G)", "Fá Maior (F)", "Dó com Sétima (C7)", "Sol com Sétima (G7)"], respostaCorretaIndex: 3 },
+            { acorde: bibliotecaAcordes['D7'].acorde, dedos: bibliotecaAcordes['D7'].dedos, opcoes: ["Ré Maior (D)", "Ré Menor (Dm)", "Ré com Sétima (D7)", "Lá com Sétima (A7)"], respostaCorretaIndex: 2 },
+            { acorde: bibliotecaAcordes['A7'].acorde, dedos: bibliotecaAcordes['A7'].dedos, opcoes: ["Lá com Sétima (A7)", "Lá Maior (A)", "Lá Menor (Am)", "Mi com Sétima (E7)"], respostaCorretaIndex: 0 },
+            { acorde: bibliotecaAcordes['E7'].acorde, dedos: bibliotecaAcordes['E7'].dedos, opcoes: ["Mi Maior (E)", "Mi com Sétima (E7)", "Lá com Sétima (A7)", "Ré com Sétima (D7)"], respostaCorretaIndex: 1 },
+            { acorde: bibliotecaAcordes['B7'].acorde, dedos: bibliotecaAcordes['B7'].dedos, opcoes: ["Si Menor (Bm)", "Fá Sustenido com Sétima (F#7)", "Mi com Sétima (E7)", "Si com Sétima (B7)"], respostaCorretaIndex: 3 }
+        ];
+
+        // Categorias do Dicionário
+        const categoriasDicionario = [
+            { id: 'maiores', nome: 'Acordes Maiores', sufixo: '', notas: ['C','D','E','F','G','A','B'] },
+            { id: 'menores', nome: 'Acordes Menores', sufixo: 'm', notas: ['C','D','E','F','G','A','B'] },
+            { id: 'sus_maiores', nome: 'Acordes Sustenido Maiores', sufixo: '#', notas: ['C','D','F','G','A'] },
+            { id: 'sus_menores', nome: 'Acordes Sustenido Menores', sufixo: '#m', notas: ['C','D','F','G','A'] },
+            { id: 'maiores_7', nome: 'Acordes Maiores Com Sétima', sufixo: '7', notas: ['C','D','E','F','G','A','B'] },
+            { id: 'menores_7', nome: 'Acordes Menores Com Sétima', sufixo: 'm7', notas: ['C','D','E','F','G','A','B'] }
+        ];
+
+        // 3. Variáveis de Estado
+        let indicePerguntaAtual = 0;
+        let pontuacao = 0;
+        let perguntasAtuais = [];
+        let intervaloTempo = null;
+        let tempoRestante = 10;
+        let audioCtx = null;
+        
+        // Variáveis do Metrônomo
+        let metronomoTocando = false;
+        let bpmAtual = 100;
+        let compasso = 4; 
+        let batidaAtual = 0;
+        let proximaNotaTempo = 0.0;
+        let timerMetronomoID = null;
+        let temposTap = []; 
+        let tempoTreinoSegundos = 0;
+        let timerTreinoID = null;
+
+        // Variáveis do Dicionário
+        let categoriaAtualDicionario = '';
+        let notaAtualDicionario = '';
+
+        // Variables para a pantalla de Teoría
+        let tomAulaAtual = '';
+
+        const dadosCamposHarmonicos = {
+            'Dó': ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
+            'Ré': ['D', 'Em', 'F#m', 'G', 'A', 'Bm', 'C#dim'],
+            'Mi': ['E', 'F#m', 'G#m', 'A', 'B', 'C#m', 'D#dim'],
+            'Fá': ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm', 'Edim'],
+            'Sol': ['G', 'Am', 'Bm', 'C', 'D', 'Em', 'F#dim'],
+            'Lá': ['A', 'Bm', 'C#m', 'D', 'E', 'F#m', 'G#dim'],
+            'Si': ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m', 'A#dim']
+        };
+
+        const dadosEscalas = {
+            'Dó': ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+            'Ré': ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'],
+            'Mi': ['E', 'F#', 'G#', 'A', 'B', 'C#', 'D#'],
+            'Fá': ['F', 'G', 'A', 'Bb', 'C', 'D', 'E'],
+            'Sol': ['G', 'A', 'B', 'C', 'D', 'E', 'F#'],
+            'Lá': ['A', 'B', 'C#', 'D', 'E', 'F#', 'G#'],
+            'Si': ['B', 'C#', 'D#', 'E', 'F#', 'G#', 'A#']
+        };
+
+        const numeraisGraus = ['1º', '2º', '3º', '4º', '5º', '6º', '7º'];
+
+        // Elementos do DOM
+        const mainCard = document.getElementById('main-card');
+        const startScreen = document.getElementById('start-screen');
+        const teoriaExplicacaoScreen = document.getElementById('teoria-explicacao-screen');
+        const quizOptionsScreen = document.getElementById('quiz-options-screen');
+        const camposScreen = document.getElementById('campos-screen');
+        const estudoCampoScreen = document.getElementById('estudo-campo-screen');
+        const metronomoScreen = document.getElementById('metronomo-screen');
+        const dicionarioCategoriasScreen = document.getElementById('dicionario-categorias-screen');
+        const dicionarioNotasScreen = document.getElementById('dicionario-notas-screen');
+        const teoriaMenuScreen = document.getElementById('teoria-menu-screen');
+        const aulaScreen = document.getElementById('aula-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const chordDiagram = document.getElementById('chord-diagram');
+        const optionsContainer = document.getElementById('options-container');
+        const progressText = document.getElementById('progress-text');
+        const timerText = document.getElementById('timer-text');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreText = document.getElementById('score-text');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const beatIndicatorsContainer = document.getElementById('beat-indicators');
+
+        function formatarTempoTreino(segundos) {
+            const m = Math.floor(segundos / 60).toString().padStart(2, '0');
+            const s = (segundos % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function gerarSVG(trastes, pestana = null, dedos = []) {
+            let trastesPressionados = trastes.filter(t => t !== 'x' && t !== 0);
+            let trasteMax = trastesPressionados.length > 0 ? Math.max(...trastesPressionados) : 0;
+            let startFret = 1;
+            
+            if (trasteMax > 4) {
+                startFret = Math.min(...trastesPressionados);
+            }
+
+            let svg = `<svg width="140" height="170" viewBox="0 0 130 160" xmlns="http://www.w3.org/2000/svg" class="drop-shadow-md">`;
+            
+            if (startFret === 1) {
+                svg += `<path d="M 20 30 L 120 30" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>`;
+            } else {
+                svg += `<line x1="20" y1="30" x2="120" y2="30" stroke="#94a3b8" stroke-width="2"/>`;
+                svg += `<text x="2" y="43" font-family="sans-serif" font-size="12" fill="#64748b" font-weight="bold">${startFret}ª</text>`;
+            }
+            
+            for(let i = 1; i <= 4; i++) {
+                svg += `<line x1="20" y1="${30 + i*25}" x2="120" y2="${30 + i*25}" stroke="#94a3b8" stroke-width="2"/>`;
+            }
+            
+            for(let i = 0; i < 6; i++) {
+                svg += `<line x1="${20 + i*20}" y1="30" x2="${20 + i*20}" y2="130" stroke="#cbd5e1" stroke-width="2"/>`;
+            }
+            
+            if (pestana) {
+                let startX = 20 + pestana.cordaInicial * 20;
+                let endX = 20 + pestana.cordaFinal * 20;
+                let width = (pestana.cordaFinal - pestana.cordaInicial) * 20 + 18;
+                let xPestana = startX - 9;
+                let yPestana = 30 + (pestana.traste - startFret) * 25 + 3.5; 
+                
+                svg += `<rect x="${xPestana}" y="${yPestana}" width="${width}" height="18" rx="9" fill="#60a5fa" stroke="#1e293b" stroke-width="2"/>`;
+                svg += `<text x="${startX}" y="${yPestana + 13}" font-family="sans-serif" font-size="12" fill="white" text-anchor="middle" font-weight="bold">1</text>`;
+                svg += `<text x="${endX}" y="${yPestana + 13}" font-family="sans-serif" font-size="12" fill="white" text-anchor="middle" font-weight="bold">1</text>`;
+            }
+
+            trastes.forEach((traste, index) => {
+                let x = 20 + index * 20;
+                
+                if (traste === 'x') {
+                    svg += `<text x="${x}" y="18" font-family="sans-serif" font-size="16" fill="#ef4444" text-anchor="middle" font-weight="bold">X</text>`;
+                } else if (traste === 0) {
+                    svg += `<circle cx="${x}" cy="12" r="5" stroke="#3b82f6" stroke-width="2" fill="none"/>`;
+                } else {
+                    let cobertoPelaPestana = pestana && traste === pestana.traste && index >= pestana.cordaInicial && index <= pestana.cordaFinal;
+                    
+                    if (!cobertoPelaPestana) {
+                        let y = 30 + (traste - startFret) * 25 + 12.5; 
+                        
+                        svg += `<circle cx="${x}" cy="${y}" r="11" fill="#60a5fa" stroke="#1e293b" stroke-width="2"/>`;
+                        
+                        let numeroDedo = dedos[index];
+                        if (numeroDedo && numeroDedo !== 0) {
+                            svg += `<text x="${x}" y="${y + 4.5}" font-family="sans-serif" font-size="12" fill="white" text-anchor="middle" font-weight="bold">${numeroDedo}</text>`;
+                        }
+                    }
+                }
+            });
+            
+            svg += `</svg>`;
+            return svg;
+        }
+
+        function embaralharArray(array) {
+            let indiceAtual = array.length, valorTemporario, indiceAleatorio;
+            while (0 !== indiceAtual) {
+                indiceAleatorio = Math.floor(Math.random() * indiceAtual);
+                indiceAtual -= 1;
+                valorTemporario = array[indiceAtual];
+                array[indiceAtual] = array[indiceAleatorio];
+                array[indiceAleatorio] = valorTemporario;
+            }
+            return array;
+        }
+
+        // --- SISTEMA DE ÁUDIO ---
+        function inicializarAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function tocarSomTempoEsgotado() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.4);
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
+        function tocarSomConfirmacao() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(500, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.2);
+        }
+
+        // --- CONTROLO DA NAVEGAÇÃO E LARGURA DO ECRÃ ---
+        function restaurarTamanhoCartao() {
+            mainCard.classList.remove('max-w-4xl');
+            mainCard.classList.remove('max-w-3xl');
+            mainCard.classList.add('max-w-md');
+        }
+
+        function expandirTamanhoCartao() {
+            mainCard.classList.remove('max-w-md');
+            mainCard.classList.add('max-w-4xl');
+        }
+
+        function expandirParaTeoria() {
+            mainCard.classList.remove('max-w-md');
+            mainCard.classList.add('max-w-3xl');
+        }
+
+        function mostrarTeoriaExplicacao() {
+            startScreen.classList.add('hidden');
+            teoriaExplicacaoScreen.classList.remove('hidden');
+            expandirParaTeoria();
+        }
+
+        function irDaTeoriaParaExercicios() {
+            teoriaExplicacaoScreen.classList.add('hidden');
+            restaurarTamanhoCartao();
+            mostrarTeoriaMenu();
+        }
+
+        function mostrarOpcoesQuiz() {
+            startScreen.classList.add('hidden');
+            quizOptionsScreen.classList.remove('hidden');
+        }
+
+        function mostrarTelaCampos() {
+            startScreen.classList.add('hidden');
+            camposScreen.classList.remove('hidden');
+        }
+
+        function voltarParaCampos() {
+            estudoCampoScreen.classList.add('hidden');
+            camposScreen.classList.remove('hidden');
+            restaurarTamanhoCartao();
+        }
+
+        function mostrarMetronomo() {
+            startScreen.classList.add('hidden');
+            metronomoScreen.classList.remove('hidden');
+            renderizarIndicadoresDeCompasso();
+            
+            tempoTreinoSegundos = 0;
+            document.getElementById('practice-timer').textContent = "00:00";
+        }
+
+        function mostrarTeoriaMenu() {
+            startScreen.classList.add('hidden');
+            teoriaMenuScreen.classList.remove('hidden');
+        }
+
+        function voltarParaTeoriaMenu() {
+            aulaScreen.classList.add('hidden');
+            teoriaMenuScreen.classList.remove('hidden');
+            restaurarTamanhoCartao();
+        }
+
+        function voltarParaInicio() {
+            quizOptionsScreen.classList.add('hidden');
+            camposScreen.classList.add('hidden');
+            estudoCampoScreen.classList.add('hidden');
+            metronomoScreen.classList.add('hidden');
+            dicionarioCategoriasScreen.classList.add('hidden');
+            dicionarioNotasScreen.classList.add('hidden');
+            teoriaMenuScreen.classList.add('hidden');
+            teoriaExplicacaoScreen.classList.add('hidden');
+            aulaScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            restaurarTamanhoCartao();
+            
+            if (metronomoTocando) {
+                toggleMetronomo();
+            }
+        }
+
+        // --- LÓGICA DO DICIONÁRIO DE ACORDES ---
+        function mostrarDicionarioCategorias() {
+            startScreen.classList.add('hidden');
+            dicionarioCategoriasScreen.classList.remove('hidden');
+            
+            const container = document.getElementById('categorias-container');
+            container.innerHTML = '';
+            
+            categoriasDicionario.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = "w-full bg-slate-800 text-white rounded-xl p-4 flex items-center gap-4 hover:bg-slate-700 transition shadow-md";
+                btn.onclick = () => abrirCategoriaDicionario(cat.id);
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = "bg-red-500 rounded-full w-12 h-12 flex items-center justify-center shrink-0 text-xl";
+                iconDiv.innerHTML = "🎸";
+                
+                const titleSpan = document.createElement('span');
+                titleSpan.className = "font-semibold text-lg text-left";
+                titleSpan.textContent = cat.nome;
+                
+                btn.appendChild(iconDiv);
+                btn.appendChild(titleSpan);
+                container.appendChild(btn);
+            });
+        }
+
+        function voltarParaDicionarioCategorias() {
+            dicionarioNotasScreen.classList.add('hidden');
+            dicionarioCategoriasScreen.classList.remove('hidden');
+        }
+
+        function abrirCategoriaDicionario(catId) {
+            dicionarioCategoriasScreen.classList.add('hidden');
+            dicionarioNotasScreen.classList.remove('hidden');
+            
+            categoriaAtualDicionario = catId;
+            const categoria = categoriasDicionario.find(c => c.id === catId);
+            
+            document.getElementById('dicionario-title').textContent = categoria.nome;
+            document.getElementById('dicionario-chord-name').textContent = "Selecione uma nota acima.";
+            document.getElementById('dicionario-chord-diagram').innerHTML = '';
+            
+            const container = document.getElementById('palhetas-container');
+            container.innerHTML = '';
+            
+            categoria.notas.forEach(nota => {
+                const pick = document.createElement('div');
+                pick.className = "palheta";
+                pick.dataset.nota = nota;
+                pick.onclick = () => selecionarNotaDicionario(nota);
+                
+                const pickInner = document.createElement('div');
+                pickInner.className = "palheta-inner";
+                pickInner.textContent = nota;
+                
+                pick.appendChild(pickInner);
+                container.appendChild(pick);
+            });
+        }
+
+        function selecionarNotaDicionario(nota) {
+            notaAtualDicionario = nota;
+            const cat = categoriasDicionario.find(c => c.id === categoriaAtualDicionario);
+            const nomeAcordeCompleto = nota + cat.sufixo;
+            const dadosAcorde = bibliotecaAcordes[nomeAcordeCompleto];
+
+            const displayContainer = document.getElementById('dicionario-chord-diagram');
+            const nomeDisplay = document.getElementById('dicionario-chord-name');
+
+            const traduz = { 'C':'dó', 'D':'ré', 'E':'mi', 'F':'fá', 'G':'sol', 'A':'lá', 'B':'si' };
+            let nomePt = traduz[nota];
+            let descSingular = cat.nome.replace('Acordes ', '').replace('Maiores', 'maior').replace('Menores', 'menor').toLowerCase();
+
+            nomeDisplay.innerHTML = `Acorde de <b>${nomePt} ${descSingular}</b> (${nomeAcordeCompleto})`;
+
+            if (dadosAcorde) {
+                displayContainer.innerHTML = gerarSVG(dadosAcorde.acorde, dadosAcorde.pestana, dadosAcorde.dedos);
+            } else {
+                displayContainer.innerHTML = '<span class="text-slate-400 font-medium">Desenho não disponível na biblioteca.</span>';
+            }
+
+            document.querySelectorAll('.palheta').forEach(p => {
+                p.classList.remove('ring-4', 'ring-indigo-400', 'scale-110');
+                if (p.dataset.nota === nota) {
+                    p.classList.add('ring-4', 'ring-indigo-400', 'scale-110');
+                }
+            });
+        }
+
+        function traduzirNomeAcorde(acorde) {
+            const notas = { 'C': 'Dó', 'D': 'Ré', 'E': 'Mi', 'F': 'Fá', 'G': 'Sol', 'A': 'Lá', 'B': 'Si' };
+            let nota = notas[acorde.charAt(0)];
+            let resto = acorde.slice(1);
+
+            if (resto.startsWith('#')) {
+                nota += ' sustenido';
+                resto = resto.slice(1);
+            }
+
+            if (resto === '') return `(${nota})`;
+            if (resto === 'm') return `(${nota} menor)`;
+            if (resto === 'dim') return `(${nota} diminuto)`;
+            if (resto === '7') return `(${nota} com sétima)`;
+            
+            return `(${nota})`;
+        }
+
+        // Mostrar Acordes do Campo Harmónico
+        function mostrarAcordesDoCampo(tom) {
+            camposScreen.classList.add('hidden');
+            estudoCampoScreen.classList.remove('hidden');
+            
+            expandirTamanhoCartao();
+
+            document.getElementById('campo-title').textContent = `Campo Harmônico de ${tom}`;
+            
+            const container = document.getElementById('campo-chords-container');
+            container.innerHTML = ''; 
+
+            const acordesDoTom = dadosCamposHarmonicos[tom];
+
+            acordesDoTom.forEach((nomeAcorde, index) => {
+                const dadosAcorde = bibliotecaAcordes[nomeAcorde];
+                
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center hover:shadow-md transition";
+                
+                const grauLabel = document.createElement('span');
+                grauLabel.className = "text-sm font-bold text-slate-400 mb-1";
+                grauLabel.textContent = `Grau ${numeraisGraus[index]}`;
+                
+                const tituloContainer = document.createElement('div');
+                tituloContainer.className = "text-center mb-3";
+
+                const nomeLabel = document.createElement('h3');
+                nomeLabel.className = "text-xl font-bold text-indigo-700 leading-none";
+                nomeLabel.textContent = nomeAcorde;
+
+                const subNomeLabel = document.createElement('p');
+                subNomeLabel.className = "text-sm font-medium text-slate-500 mt-1";
+                subNomeLabel.textContent = traduzirNomeAcorde(nomeAcorde);
+
+                tituloContainer.appendChild(nomeLabel);
+                tituloContainer.appendChild(subNomeLabel);
+                
+                const svgContainer = document.createElement('div');
+                svgContainer.className = "flex justify-center w-full";
+                if (dadosAcorde) {
+                    svgContainer.innerHTML = gerarSVG(dadosAcorde.acorde, dadosAcorde.pestana, dadosAcorde.dedos);
+                } else {
+                    svgContainer.innerHTML = '<span class="text-xs text-red-500">Desenho Indisponível</span>';
+                }
+                
+                card.appendChild(grauLabel);
+                card.appendChild(tituloContainer);
+                card.appendChild(svgContainer);
+                
+                container.appendChild(card);
+            });
+        }
+
+        // --- LÓXICA DE TEORÍA E EXERCICIOS ---
+        function abrirAula(tom) {
+            teoriaMenuScreen.classList.add('hidden');
+            aulaScreen.classList.remove('hidden');
+            expandirTamanhoCartao();
+            tomAulaAtual = tom;
+
+            document.getElementById('aula-title').textContent = `Tonalidade de ${tom}`;
+
+            // Renderizar Escala
+            const escalaContainer = document.getElementById('aula-escala-container');
+            escalaContainer.innerHTML = '';
+            dadosEscalas[tom].forEach((nota, index) => {
+                let div = document.createElement('div');
+                div.className = "bg-indigo-100 text-indigo-800 font-bold py-2 px-4 rounded-lg shadow-sm border border-indigo-200";
+                div.textContent = `${index+1}ª ${nota}`;
+                escalaContainer.appendChild(div);
+            });
+
+            // Renderizar Campo
+            const campoContainer = document.getElementById('aula-campo-container');
+            campoContainer.innerHTML = '';
+            dadosCamposHarmonicos[tom].forEach((acorde, index) => {
+                let div = document.createElement('div');
+                div.className = "bg-slate-50 border border-slate-200 p-2 rounded-lg text-center shadow-sm";
+                div.innerHTML = `<span class="text-xs text-slate-400 block">${numeraisGraus[index]}</span><span class="font-bold text-slate-700 text-lg">${acorde}</span>`;
+                campoContainer.appendChild(div);
+            });
+        }
+
+        function criarPerguntaMiniQuiz(texto, certa, erradas) {
+            let opcoes = [certa, ...erradas];
+            let opcoesEmb = embaralharArray([...opcoes]);
+            return {
+                texto: texto,
+                opcoes: opcoesEmb,
+                respostaCorretaIndex: opcoesEmb.indexOf(certa)
+            };
+        }
+
+        function iniciarMiniQuiz() {
+            inicializarAudio();
+            let notas = dadosEscalas[tomAulaAtual];
+            let acordes = dadosCamposHarmonicos[tomAulaAtual];
+
+            let erradasGraus = dadosCamposHarmonicos['Dó'].concat(dadosCamposHarmonicos['Sol']).filter(a => !acordes.includes(a));
+            erradasGraus = embaralharArray([...new Set(erradasGraus)]);
+
+            let erradasNotas = ['C','D','E','F','G','A','B','C#','F#','Bb','Eb'].filter(n => !notas.includes(n));
+            erradasNotas = embaralharArray([...new Set(erradasNotas)]);
+
+            let novasPerguntas = [
+                criarPerguntaMiniQuiz(`Qual é a 4ª nota (Subdominante) da escala de ${tomAulaAtual}?`, notas[3], [notas[4], erradasNotas[0], erradasNotas[1]]),
+                criarPerguntaMiniQuiz(`Qual é o acorde do 5º grau (Dominante) em ${tomAulaAtual} Maior?`, acordes[4], [acordes[3], erradasGraus[0], erradasGraus[1]]),
+                criarPerguntaMiniQuiz(`O acorde do 2º grau em ${tomAulaAtual} Maior é:`, acordes[1], [acordes[2], acordes[0], erradasGraus[2]])
+            ];
+
+            perguntasAtuais = embaralharArray(novasPerguntas);
+            indicePerguntaAtual = 0;
+            pontuacao = 0;
+
+            aulaScreen.classList.add('hidden');
+            restaurarTamanhoCartao();
+            quizScreen.classList.remove('hidden');
+
+            carregarPergunta();
+        }
+
+        // --- LÓGICA DO METRÔNOMO ---
+        function atualizarBPM(valor) {
+            bpmAtual = parseInt(valor);
+            document.getElementById('bpm-display').textContent = valor;
+            document.getElementById('bpm-slider').value = valor;
+        }
+
+        function mudarBPM(delta) {
+            let novoValor = bpmAtual + delta;
+            if (novoValor >= 40 && novoValor <= 220) {
+                atualizarBPM(novoValor);
+            }
+        }
+
+        function renderizarIndicadoresDeCompasso() {
+            beatIndicatorsContainer.innerHTML = '';
+            for (let i = 0; i < compasso; i++) {
+                let dot = document.createElement('div');
+                dot.className = "w-4 h-4 rounded-full bg-slate-200 transition-colors duration-100";
+                dot.id = `beat-dot-${i}`;
+                beatIndicatorsContainer.appendChild(dot);
+            }
+        }
+
+        function atualizarVisorDeBatida(batida) {
+            for (let i = 0; i < compasso; i++) {
+                let dot = document.getElementById(`beat-dot-${i}`);
+                if (dot) {
+                    if (i === batida) {
+                        dot.className = "w-4 h-4 rounded-full bg-slate-600 transition-colors duration-100"; 
+                    } else {
+                        dot.className = "w-4 h-4 rounded-full bg-slate-200 transition-colors duration-100";
+                    }
+                }
+            }
+        }
+
+        function mudarCompasso(valor) {
+            compasso = valor;
+            document.querySelectorAll('.compasso-btn').forEach(btn => {
+                if (parseInt(btn.getAttribute('data-compasso')) === valor) {
+                    btn.classList.replace('bg-slate-200', 'bg-green-500');
+                } else {
+                    btn.classList.replace('bg-green-500', 'bg-slate-200');
+                }
+            });
+            renderizarIndicadoresDeCompasso();
+            
+            if (metronomoTocando) {
+                batidaAtual = 0;
+            } else {
+                for (let i = 0; i < compasso; i++) {
+                    let dot = document.getElementById(`beat-dot-${i}`);
+                    if (dot) dot.className = "w-4 h-4 rounded-full bg-slate-200";
+                }
+            }
+        }
+
+        function marcarTempo() {
+            const agora = performance.now();
+            temposTap.push(agora);
+            
+            if (temposTap.length > 4) {
+                temposTap.shift();
+            }
+
+            if (temposTap.length >= 2) {
+                let somaDiferencas = 0;
+                for (let i = 1; i < temposTap.length; i++) {
+                    somaDiferencas += (temposTap[i] - temposTap[i - 1]);
+                }
+                let mediaDiferencaMs = somaDiferencas / (temposTap.length - 1);
+                let calculoBpm = Math.round(60000 / mediaDiferencaMs);
+                
+                if (calculoBpm >= 40 && calculoBpm <= 220) {
+                    atualizarBPM(calculoBpm);
+                }
+            }
+            
+            if (!metronomoTocando) {
+                let dot0 = document.getElementById('beat-dot-0');
+                if (dot0) {
+                    dot0.classList.replace('bg-slate-200', 'bg-slate-400');
+                    setTimeout(() => dot0.classList.replace('bg-slate-400', 'bg-slate-200'), 100);
+                }
+            }
+        }
+
+        function tocarClickMetronomo(tempo, batida) {
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (batida === 0) {
+                osc.frequency.setValueAtTime(1200, tempo);
+            } else {
+                osc.frequency.setValueAtTime(800, tempo);
+            }
+            
+            osc.frequency.exponentialRampToValueAtTime(10, tempo + 0.05);
+            gainNode.gain.setValueAtTime(1, tempo);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, tempo + 0.05);
+            
+            osc.start(tempo);
+            osc.stop(tempo + 0.05);
+        }
+
+        function agendarMetronomo() {
+            while (proximaNotaTempo < audioCtx.currentTime + 0.1) {
+                tocarClickMetronomo(proximaNotaTempo, batidaAtual);
+                
+                let tempoAteTocar = (proximaNotaTempo - audioCtx.currentTime) * 1000;
+                let batidaParaPiscar = batidaAtual;
+                setTimeout(() => {
+                    atualizarVisorDeBatida(batidaParaPiscar);
+                }, tempoAteTocar);
+                
+                batidaAtual = (batidaAtual + 1) % compasso;
+                proximaNotaTempo += (60.0 / bpmAtual);
+            }
+            timerMetronomoID = setTimeout(agendarMetronomo, 25.0);
+        }
+
+        function toggleMetronomo() {
+            inicializarAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const btnComecar = document.getElementById('btn-comecar');
+
+            metronomoTocando = !metronomoTocando;
+
+            if (metronomoTocando) {
+                btnComecar.textContent = "PARAR";
+                batidaAtual = 0;
+                proximaNotaTempo = audioCtx.currentTime + 0.05;
+                agendarMetronomo();
+                
+                tempoTreinoSegundos = 0;
+                document.getElementById('practice-timer').textContent = "00:00";
+                
+                timerTreinoID = setInterval(() => {
+                    tempoTreinoSegundos++;
+                    document.getElementById('practice-timer').textContent = formatarTempoTreino(tempoTreinoSegundos);
+                }, 1000);
+            } else {
+                btnComecar.textContent = "COMEÇAR";
+                clearTimeout(timerMetronomoID);
+                
+                clearInterval(timerTreinoID);
+                
+                for (let i = 0; i < compasso; i++) {
+                    let dot = document.getElementById(`beat-dot-${i}`);
+                    if (dot) dot.className = "w-4 h-4 rounded-full bg-slate-200 transition-colors duration-100";
+                }
+            }
+        }
+
+        // --- LÓGICA DO QUIZ NORMAL ---
+        function iniciarQuiz(quantidade) {
+            inicializarAudio();
+            restaurarTamanhoCartao();
+
+            let bancoEmbaralhado = embaralharArray([...bancoDePerguntas]);
+            perguntasAtuais = bancoEmbaralhado.slice(0, quantidade);
+
+            indicePerguntaAtual = 0;
+            pontuacao = 0;
+
+            quizOptionsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            carregarPergunta();
+        }
+
+        function iniciarTimer() {
+            clearInterval(intervaloTempo);
+            tempoRestante = 10;
+            timerText.textContent = `⏱ ${tempoRestante}s`;
+            timerText.classList.remove('animate-pulse', 'bg-red-200', 'text-red-700');
+            
+            intervaloTempo = setInterval(() => {
+                tempoRestante--;
+                timerText.textContent = `⏱ ${tempoRestante}s`;
+                
+                if (tempoRestante <= 3) {
+                    timerText.classList.add('animate-pulse', 'bg-red-200', 'text-red-700');
+                }
+
+                if (tempoRestante <= 0) {
+                    clearInterval(intervaloTempo);
+                    tocarSomTempoEsgotado();
+                    avancarPergunta();
+                }
+            }, 1000);
+        }
+
+        function carregarPergunta() {
+            const perguntaAtual = perguntasAtuais[indicePerguntaAtual];
+            iniciarTimer();
+
+            progressText.textContent = `Pergunta ${indicePerguntaAtual + 1} de ${perguntasAtuais.length}`;
+            
+            if (perguntaAtual.acorde) {
+                chordDiagram.innerHTML = gerarSVG(perguntaAtual.acorde, perguntaAtual.pestana, perguntaAtual.dedos);
+                chordDiagram.classList.remove('hidden');
+                document.getElementById('question-text').textContent = "Que acorde é este?";
+            } else {
+                chordDiagram.innerHTML = '';
+                chordDiagram.classList.add('hidden');
+                document.getElementById('question-text').textContent = perguntaAtual.texto;
+            }
+            
+            const progressoPercentual = ((indicePerguntaAtual + 1) / perguntasAtuais.length) * 100;
+            progressBar.style.width = `${progressoPercentual}%`;
+
+            optionsContainer.innerHTML = '';
+            perguntaAtual.opcoes.forEach((opcao, index) => {
+                const button = document.createElement('button');
+                button.className = "w-full text-left bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 text-slate-700 font-medium py-4 px-6 rounded-xl transition duration-200";
+                button.textContent = opcao;
+                button.onclick = () => verificarResposta(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            quizScreen.classList.remove('fade-in');
+            void quizScreen.offsetWidth;
+            quizScreen.classList.add('fade-in');
+        }
+
+        function avancarPergunta() {
+            if (indicePerguntaAtual < perguntasAtuais.length - 1) {
+                indicePerguntaAtual++;
+                carregarPergunta();
+            } else {
+                mostrarResultado();
+            }
+        }
+
+        function verificarResposta(indiceSelecionado) {
+            clearInterval(intervaloTempo);
+            const perguntaAtual = perguntasAtuais[indicePerguntaAtual];
+            
+            if (indiceSelecionado === perguntaAtual.respostaCorretaIndex) {
+                pontuacao++;
+            }
+
+            tocarSomConfirmacao();
+            avancarPergunta();
+        }
+
+        function mostrarResultado() {
+            clearInterval(intervaloTempo);
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            scoreText.textContent = `${pontuacao} / ${perguntasAtuais.length}`;
+
+            if (pontuacao === perguntasAtuais.length) {
+                feedbackMessage.innerHTML = "Perfeito! Você é um mestre da harmonia! 🎸";
+            } else if (pontuacao >= perguntasAtuais.length / 2) {
+                feedbackMessage.innerHTML = "Muito bem! Você conhece bem os acordes. 🎵";
+            } else {
+                feedbackMessage.innerHTML = "Continue praticando! A teoria musical leva tempo. 🎶";
+            }
+        }
+
+    </script>
+</body>
+</html>
