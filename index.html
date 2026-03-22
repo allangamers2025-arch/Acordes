@@ -12,7 +12,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Efeito suave nas transições */
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
         }
@@ -20,11 +19,9 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Transição suave para o tamanho do cartão principal */
         #main-card {
             transition: max-width 0.4s ease-in-out;
         }
-        /* Estilização personalizada para o slider do metrônomo */
         input[type=range].metronome-slider {
             -webkit-appearance: none;
             appearance: none;
@@ -37,7 +34,7 @@
             height: 20px;
             width: 20px;
             border-radius: 50%;
-            background: #475569; /* slate-600 */
+            background: #475569;
             cursor: pointer;
             margin-top: -8px;
         }
@@ -45,14 +42,13 @@
             width: 100%;
             height: 4px;
             cursor: pointer;
-            background: #cbd5e1; /* slate-300 */
+            background: #cbd5e1;
             border-radius: 2px;
         }
-        /* Estilização das Palhetas do Dicionário */
         .palheta {
             width: 60px;
             height: 68px;
-            background-color: #ef4444; /* red-500 */
+            background-color: #ef4444;
             border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
             display: flex;
             align-items: center;
@@ -68,7 +64,7 @@
         .palheta-inner {
             width: 42px;
             height: 42px;
-            background-color: #fde047; /* yellow-300 */
+            background-color: #fde047;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -80,12 +76,12 @@
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        /* Estilização para o Braço do Violão Interativo */
+        /* Estilização para o Braço Interativo (O Jogo) */
         .fretboard-string {
             position: absolute;
             left: 0;
             right: 0;
-            background-color: #94a3b8; /* slate-400 */
+            background-color: #94a3b8;
             box-shadow: 0 1px 2px rgba(0,0,0,0.3);
             z-index: 10;
         }
@@ -95,7 +91,7 @@
             transform: translate(-50%, -50%);
             width: 16px;
             height: 16px;
-            background-color: #cbd5e1; /* slate-300 */
+            background-color: #cbd5e1;
             border-radius: 50%;
             z-index: 5;
         }
@@ -103,7 +99,7 @@
             position: absolute;
             width: 24px;
             height: 24px;
-            background-color: #ef4444; /* red-500 */
+            background-color: #ef4444;
             border: 2px solid white;
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -116,6 +112,20 @@
             70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
+
+        /* Estilização para o Círculo Cromático (Novo) */
+        .circle-container { position: relative; width: 220px; height: 220px; margin: 0 auto; }
+        .circle-center-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #475569; text-align: center; line-height: 1.2; font-size: 0.9rem; }
+        .note-wrapper { position: absolute; top: 0; left: 50%; width: 46px; height: 110px; transform-origin: bottom center; margin-left: -23px; }
+        .note-ball { width: 46px; height: 46px; border-radius: 50%; background: white; border: 2px solid #1e293b; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; color: #1e293b; box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: transform 0.2s;}
+
+        /* Grid do Mapa Vertical do Braço (Novo) */
+        .vertical-fretboard { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; width: 100%; max-width: 240px; margin: 0 auto; background: #fff; border: 4px solid #1e293b; position: relative; }
+        .vf-cell { border-right: 1px solid #94a3b8; border-bottom: 2px solid #cbd5e1; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; position: relative; z-index: 10; color: #1e293b; }
+        .vf-cell:nth-child(6n) { border-right: none; }
+        .vf-row-green { background-color: rgba(34, 197, 94, 0.2); }
+        .vf-row-nut { border-bottom: 6px solid #1e293b !important; background-color: rgba(34, 197, 94, 0.3); height: 40px;}
+        .vf-fret-number { position: absolute; left: -24px; font-size: 10px; font-weight: bold; color: #64748b; }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
@@ -129,7 +139,7 @@
             <p class="text-slate-500 mb-8">Escolha um modo de estudo:</p>
             
             <div class="space-y-4">
-                <!-- Botão de Aprender o Braço do Violão (NOVO) -->
+                <!-- Botão de Aprender o Braço do Violão -->
                 <button onclick="mostrarTelaBraco()" class="w-full bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 text-orange-800 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-3">
                     <span class="text-xl">🗺️</span> Dominar o Braço do Violão
                 </button>
@@ -166,41 +176,76 @@
             </div>
         </div>
 
-        <!-- NOVO: TELA DO BRAÇO DO VIOLÃO (TEORIA E TREINO) -->
+        <!-- TELA DO BRAÇO DO VIOLÃO (TEORIA E TREINO) -->
         <div id="braco-screen" class="hidden fade-in w-full max-w-4xl mx-auto">
             <h1 class="text-4xl font-extrabold text-orange-600 mb-2 text-center">O Braço do Violão</h1>
             <p class="text-slate-500 mb-8 text-center text-lg">Aprenda a encontrar qualquer nota rapidamente: do Iniciante ao Avançado.</p>
 
             <!-- 🟢 NÍVEL INICIANTE -->
             <h3 class="text-xl font-black text-orange-600 mb-4 border-b-2 border-orange-200 pb-2 flex items-center gap-2">
-                <span class="text-2xl">🟢</span> Nível Iniciante: O Básico
+                <span class="text-2xl">🟢</span> Nível Iniciante: A Lógica das Notas
             </h3>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 text-left">
-                <!-- Regra 1: Cordas Soltas -->
-                <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm">
-                    <h2 class="font-bold text-slate-800 text-xl mb-3 border-b pb-2 border-orange-100">1. As Cordas Soltas (Casa 0)</h2>
-                    <p class="text-sm text-slate-600 mb-4">A contagem das cordas faz-se da mais fina (em baixo) para a mais grossa (em cima).</p>
-                    <ul class="space-y-2 font-medium text-slate-700 bg-orange-50 p-3 rounded-xl border border-orange-200">
-                        <li>1ª Corda (Mais fina): <strong class="text-orange-600">E</strong> (Mi) aguda</li>
-                        <li>2ª Corda: <strong class="text-orange-600">B</strong> (Si)</li>
-                        <li>3ª Corda: <strong class="text-orange-600">G</strong> (Sol)</li>
-                        <li>4ª Corda: <strong class="text-orange-600">D</strong> (Ré)</li>
-                        <li>5ª Corda: <strong class="text-orange-600">A</strong> (Lá)</li>
-                        <li>6ª Corda (Mais grossa): <strong class="text-orange-600">E</strong> (Mi) grave</li>
-                    </ul>
-                    <p class="text-xs text-slate-500 mt-3 italic">Frase para memorizar de baixo para cima: "Ele Bateu Gol No Dia Antes (de) Escurecer".</p>
+                
+                <!-- O Relógio Musical -->
+                <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm flex flex-col justify-center">
+                    <h2 class="font-bold text-slate-800 text-xl mb-3 border-b pb-2 border-orange-100">1. O Relógio Cromático</h2>
+                    <p class="text-sm text-slate-600 mb-4">No violão, <strong>1 Casa = 1 Semitom</strong>. Existem apenas 12 notas na música antes delas se repetirem. Memorize este relógio e perceba a regra de ouro: <strong>O Mi (E) e o Si (B) não têm sustenidos!</strong></p>
+                    
+                    <!-- CSS Chromatic Circle Baseado na Imagem -->
+                    <div class="circle-container mt-4 mb-2">
+                        <div class="circle-center-text">Escala<br>Cromática</div>
+                        <div class="note-wrapper" style="transform: rotate(0deg);"><div class="note-ball" style="transform: rotate(0deg);">DÓ</div></div>
+                        <div class="note-wrapper" style="transform: rotate(30deg);"><div class="note-ball" style="transform: rotate(-30deg);">DÓ#</div></div>
+                        <div class="note-wrapper" style="transform: rotate(60deg);"><div class="note-ball" style="transform: rotate(-60deg);">RÉ</div></div>
+                        <div class="note-wrapper" style="transform: rotate(90deg);"><div class="note-ball" style="transform: rotate(-90deg);">RÉ#</div></div>
+                        <div class="note-wrapper" style="transform: rotate(120deg);"><div class="note-ball" style="transform: rotate(-120deg);">MÍ</div></div>
+                        <div class="note-wrapper" style="transform: rotate(150deg);"><div class="note-ball" style="transform: rotate(-150deg); background-color: #fef08a;">FÁ</div></div>
+                        <div class="note-wrapper" style="transform: rotate(180deg);"><div class="note-ball" style="transform: rotate(-180deg);">FÁ#</div></div>
+                        <div class="note-wrapper" style="transform: rotate(210deg);"><div class="note-ball" style="transform: rotate(-210deg);">SOL</div></div>
+                        <div class="note-wrapper" style="transform: rotate(240deg);"><div class="note-ball" style="transform: rotate(-240deg);">SOL#</div></div>
+                        <div class="note-wrapper" style="transform: rotate(270deg);"><div class="note-ball" style="transform: rotate(-270deg);">LÁ</div></div>
+                        <div class="note-wrapper" style="transform: rotate(300deg);"><div class="note-ball" style="transform: rotate(-300deg);">LÁ#</div></div>
+                        <div class="note-wrapper" style="transform: rotate(330deg);"><div class="note-ball" style="transform: rotate(-330deg);">SÍ</div></div>
+                    </div>
+                    <p class="text-xs text-center text-slate-400 mt-2">Avance no sentido dos ponteiros do relógio sempre que andar uma casa no violão.</p>
                 </div>
 
-                <!-- Regra 2: Avançar no Braço -->
-                <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm flex flex-col justify-between">
-                    <div>
-                        <h2 class="font-bold text-slate-800 text-xl mb-3 border-b pb-2 border-orange-100">2. A Regra do Semitom</h2>
-                        <p class="text-sm text-slate-600 mb-4">Cada <strong>casa</strong> que avança no violão equivale a <strong>1 semitom</strong>. A ordem é a Escala Cromática:</p>
-                        <div class="bg-slate-800 text-white p-3 rounded-xl text-center text-sm font-mono tracking-widest leading-relaxed mb-4 shadow-inner">
-                            C - C# - D - D# - E - F - F# - G - G# - A - A# - B
-                        </div>
-                        <div class="bg-red-50 border-l-4 border-red-500 p-3 rounded-r-xl">
-                            <p class="text-sm text-red-800 font-medium">⚠️ <strong>Lembre-se:</strong> Não existe sustenido (#) entre o <strong>E (Mi) e o F (Fá)</strong>, nem entre o <strong>B (Si) e o C (Dó)</strong>. Eles são vizinhos diretos!</p>
+                <!-- O Mapa do Braço e a Casa 12 -->
+                <div class="bg-white p-6 rounded-2xl border border-orange-100 shadow-sm flex flex-col items-center">
+                    <h2 class="font-bold text-slate-800 text-xl mb-3 border-b pb-2 border-orange-100 w-full text-left">2. O Mapa e a Casa 12</h2>
+                    <p class="text-sm text-slate-600 mb-4 w-full text-left">Este é o mapa das notas naturais (sem sustenidos). O violão é um espelho: as cordas soltas (Casa 0) são exatamente as mesmas notas que a <strong>Casa 12</strong>, só que mais agudas!</p>
+                    
+                    <!-- CSS Vertical Fretboard Baseado na Imagem -->
+                    <div class="relative pl-6 pr-2 py-2">
+                        <div class="vertical-fretboard">
+                            <!-- Casa 0 (Nut - Verde) -->
+                            <div class="vf-cell vf-row-nut"><span class="vf-fret-number" style="top: 10px;">0</span>E</div><div class="vf-cell vf-row-nut">A</div><div class="vf-cell vf-row-nut">D</div><div class="vf-cell vf-row-nut">G</div><div class="vf-cell vf-row-nut">B</div><div class="vf-cell vf-row-nut">E</div>
+                            <!-- Casa 1 -->
+                            <div class="vf-cell"><span class="vf-fret-number">1</span>F</div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell">C</div><div class="vf-cell">F</div>
+                            <!-- Casa 2 -->
+                            <div class="vf-cell"><span class="vf-fret-number">2</span></div><div class="vf-cell">B</div><div class="vf-cell">E</div><div class="vf-cell">A</div><div class="vf-cell"></div><div class="vf-cell"></div>
+                            <!-- Casa 3 -->
+                            <div class="vf-cell"><span class="vf-fret-number">3</span>G</div><div class="vf-cell">C</div><div class="vf-cell">F</div><div class="vf-cell"></div><div class="vf-cell">D</div><div class="vf-cell">G</div>
+                            <!-- Casa 4 -->
+                            <div class="vf-cell"><span class="vf-fret-number">4</span></div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell">B</div><div class="vf-cell"></div><div class="vf-cell"></div>
+                            <!-- Casa 5 -->
+                            <div class="vf-cell"><span class="vf-fret-number">5</span>A</div><div class="vf-cell">D</div><div class="vf-cell">G</div><div class="vf-cell">C</div><div class="vf-cell">E</div><div class="vf-cell">A</div>
+                            <!-- Casa 6 -->
+                            <div class="vf-cell"><span class="vf-fret-number">6</span></div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell">F</div><div class="vf-cell"></div>
+                            <!-- Casa 7 -->
+                            <div class="vf-cell"><span class="vf-fret-number">7</span>B</div><div class="vf-cell">E</div><div class="vf-cell">A</div><div class="vf-cell">D</div><div class="vf-cell"></div><div class="vf-cell">B</div>
+                            <!-- Casa 8 -->
+                            <div class="vf-cell"><span class="vf-fret-number">8</span>C</div><div class="vf-cell">F</div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell">G</div><div class="vf-cell">C</div>
+                            <!-- Casa 9 -->
+                            <div class="vf-cell"><span class="vf-fret-number">9</span></div><div class="vf-cell"></div><div class="vf-cell">B</div><div class="vf-cell">E</div><div class="vf-cell"></div><div class="vf-cell"></div>
+                            <!-- Casa 10 -->
+                            <div class="vf-cell"><span class="vf-fret-number">10</span>D</div><div class="vf-cell">G</div><div class="vf-cell">C</div><div class="vf-cell">F</div><div class="vf-cell">A</div><div class="vf-cell">D</div>
+                            <!-- Casa 11 -->
+                            <div class="vf-cell"><span class="vf-fret-number">11</span></div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell"></div><div class="vf-cell"></div>
+                            <!-- Casa 12 (Verde) -->
+                            <div class="vf-cell vf-row-green"><span class="vf-fret-number">12</span>E</div><div class="vf-cell vf-row-green">A</div><div class="vf-cell vf-row-green">D</div><div class="vf-cell vf-row-green">G</div><div class="vf-cell vf-row-green">B</div><div class="vf-cell vf-row-green">E</div>
                         </div>
                     </div>
                 </div>
@@ -214,13 +259,13 @@
                 <!-- Regra 3: Foco nas Graves -->
                 <div class="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
                     <h2 class="font-bold text-slate-800 text-xl mb-3 border-b pb-2 border-blue-100">3. O Segredo das Cordas 6 e 5</h2>
-                    <p class="text-sm text-slate-600 mb-4">Muitos violonistas sentem-se perdidos porque tentam decorar as 6 cordas ao mesmo tempo. <strong>Erro!</strong> O método moderno diz: foque 100% apenas nas cordas 6 (Mizão) e 5 (Lá).</p>
-                    <p class="text-sm text-slate-600 mb-3"><strong>Porquê?</strong> Porque 95% dos acordes com pestana (Barre Chords) e Power Chords têm a sua nota principal (Tónica) encostada a uma destas duas cordas!</p>
+                    <p class="text-sm text-slate-600 mb-4">Muitos violonistas sentem-se perdidos porque tentam decorar as 6 cordas de uma vez. <strong>Erro!</strong> Foque apenas no Mizão (6ª) e no Lá (5ª).</p>
+                    <p class="text-sm text-slate-600 mb-3"><strong>Porquê?</strong> Porque 95% dos acordes com pestana baseiam a sua nota principal nestas duas cordas!</p>
                     <div class="bg-blue-50 p-3 rounded-xl border border-blue-200">
-                        <p class="text-xs font-bold text-blue-800 mb-2">Treine decorar os "Pontos" (Bolinhas):</p>
+                        <p class="text-xs font-bold text-blue-800 mb-2">Treine memorizar olhando para os pontos do braço:</p>
                         <ul class="text-xs text-slate-700 space-y-1">
-                            <li>📍 <strong>Corda 6:</strong> Casa 3 (G), Casa 5 (A), Casa 7 (B)</li>
-                            <li>📍 <strong>Corda 5:</strong> Casa 3 (C), Casa 5 (D), Casa 7 (E)</li>
+                            <li>📍 <strong>Na Corda 6:</strong> Casa 3 (G), Casa 5 (A), Casa 7 (B)</li>
+                            <li>📍 <strong>Na Corda 5:</strong> Casa 3 (C), Casa 5 (D), Casa 7 (E)</li>
                         </ul>
                     </div>
                 </div>
@@ -228,70 +273,36 @@
                 <!-- Regra 4: O Truque da Oitava Avançado -->
                 <div class="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm">
                     <h2 class="font-bold text-slate-800 text-xl mb-3 border-b pb-2 border-blue-100">4. Formatos de Oitava (Atalho)</h2>
-                    <p class="text-sm text-slate-600 mb-4">Se você sabe as cordas 6 e 5, o resto do braço é um "espelho"! Para achar uma nota aguda idêntica, use o salto visual:</p>
+                    <p class="text-sm text-slate-600 mb-4">Se você conhece as cordas 6 e 5, o resto do braço é um espelho. Para achar a mesma nota mais aguda, use o salto visual:</p>
                     <div class="space-y-2">
-                        <div class="flex items-center gap-3 bg-blue-50 p-2 rounded-lg border border-blue-100">
+                        <div class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border border-blue-100">
                             <span class="text-xl">🎸</span>
-                            <p class="text-xs text-slate-700"><strong>Das cordas 6 ou 5:</strong> Desça 2 cordas e avance <strong>2 casas</strong> para a frente.</p>
+                            <p class="text-xs text-slate-700"><strong>Das cordas 6 ou 5:</strong> Desça 2 cordas para baixo e avance <strong>2 casas</strong> para a direita.</p>
                         </div>
-                        <div class="flex items-center gap-3 bg-rose-50 p-2 rounded-lg border border-rose-100">
+                        <div class="flex items-center gap-3 bg-rose-50 p-3 rounded-lg border border-rose-100">
                             <span class="text-xl">⚠️</span>
-                            <p class="text-xs text-rose-800"><strong>A Anomalia da Corda B:</strong> Da corda 4 ou 3, ao passar pela corda B (Si), a afinação muda! Tem de descer 2 cordas e avançar <strong>3 casas</strong> para a frente.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 🔴 NÍVEL AVANÇADO -->
-            <h3 class="text-xl font-black text-rose-600 mb-4 border-b-2 border-rose-200 pb-2 mt-8 flex items-center gap-2">
-                <span class="text-2xl">🔴</span> Nível Avançado: Fluência Total
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 text-left">
-                <!-- Regra 5: Visão por Intervalos -->
-                <div class="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm">
-                    <h2 class="font-bold text-slate-800 text-xl mb-3 border-b pb-2 border-rose-100">5. Visão por Intervalos (GPS Musical)</h2>
-                    <p class="text-sm text-slate-600 mb-4">Um mestre não pensa "Dó, Mi, Sol". Ele pensa "Tónica, 3ª Maior, 5ª Justa" através de <strong>desenhos geométricos</strong>.</p>
-                    <ul class="space-y-3 text-sm text-slate-700">
-                        <li class="flex gap-2"><span class="text-rose-500 font-bold">1.</span> Para achar a <strong>5ª Justa</strong>: Desça 1 corda, avance 2 casas.</li>
-                        <li class="flex gap-2"><span class="text-rose-500 font-bold">2.</span> Para achar a <strong>3ª Maior</strong> (Acorde Alegre): Desça 1 corda, recue 1 casa.</li>
-                        <li class="flex gap-2"><span class="text-rose-500 font-bold">3.</span> Para achar a <strong>3ª Menor</strong> (Acorde Triste): Desça 1 corda, recue 2 casas.</li>
-                    </ul>
-                    <p class="text-xs text-slate-500 mt-4 italic">Dominando isto, você pode montar qualquer acorde em qualquer lugar do braço em tempo real.</p>
-                </div>
-
-                <!-- Regra 6: Sistema CAGED -->
-                <div class="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm">
-                    <h2 class="font-bold text-slate-800 text-xl mb-3 border-b pb-2 border-rose-100">6. O Sistema C.A.G.E.D.</h2>
-                    <p class="text-sm text-slate-600 mb-4">As cinco formas mágicas. Basicamente, os 5 acordes abertos (C, A, G, E, D) podem transformar-se numa pestana e ser deslizados pelo braço inteiro.</p>
-                    <div class="bg-rose-50 p-3 rounded-xl border border-rose-200">
-                        <p class="text-sm text-slate-700 mb-2">Exemplo: O acorde de <strong>Dó Maior (C)</strong> pode ser tocado em 5 zonas diferentes do violão:</p>
-                        <div class="flex flex-wrap gap-2 text-xs font-bold justify-center mt-2">
-                            <span class="bg-white border border-rose-300 px-2 py-1 rounded text-rose-700 shadow-sm">Formato C (Casa 0)</span>
-                            <span class="bg-white border border-rose-300 px-2 py-1 rounded text-rose-700 shadow-sm">Formato A (Casa 3)</span>
-                            <span class="bg-white border border-rose-300 px-2 py-1 rounded text-rose-700 shadow-sm">Formato G (Casa 5)</span>
-                            <span class="bg-white border border-rose-300 px-2 py-1 rounded text-rose-700 shadow-sm">Formato E (Casa 8)</span>
-                            <span class="bg-white border border-rose-300 px-2 py-1 rounded text-rose-700 shadow-sm">Formato D (Casa 10)</span>
+                            <p class="text-xs text-rose-800"><strong>A Anomalia da Corda B:</strong> Se passar pela corda B (Si), a afinação muda! Tem de descer 2 cordas e avançar <strong>3 casas</strong> para a direita.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- 🏆 DESAFIOS PRÁTICOS -->
-            <h3 class="text-xl font-black text-emerald-600 mb-4 border-b-2 border-emerald-200 pb-2 flex items-center gap-2">
-                <span class="text-2xl">🏆</span> Desafios Práticos (Pegue no seu Violão!)
+            <h3 class="text-xl font-black text-emerald-600 mb-4 border-b-2 border-emerald-200 pb-2 flex items-center gap-2 mt-8">
+                <span class="text-2xl">🏆</span> Exercícios de Fixação (Sem olhar pro celular!)
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 text-left">
                 <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 hover:shadow-md transition">
                     <h3 class="font-bold text-emerald-900 text-lg mb-2">1. Caça ao Tesouro ⏱️</h3>
-                    <p class="text-xs text-slate-600 mb-3">Escolha uma nota (ex: Sol). Ponha um cronómetro a contar 1 minuto. Tente encontrar a nota Sol em <strong>todas as 6 cordas</strong> antes que o tempo acabe. Repita com outras notas todos os dias.</p>
+                    <p class="text-xs text-slate-600 mb-3">Escolha uma nota (ex: Dó). Ponha um cronómetro. Tente encontrar o Dó em <strong>todas as 6 cordas</strong> usando a regra do relógio e as oitavas antes que o tempo acabe.</p>
                 </div>
                 <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 hover:shadow-md transition">
                     <h3 class="font-bold text-emerald-900 text-lg mb-2">2. O Monocórdio 🎻</h3>
-                    <p class="text-xs text-slate-600 mb-3">Em vez de tocar uma escala de cima para baixo (vertical), escolha apenas <strong>uma corda</strong>. Tente tocar a escala de Dó Maior deslizando o dedo da esquerda para a direita (horizontalmente).</p>
+                    <p class="text-xs text-slate-600 mb-3">Escolha apenas <strong>uma corda</strong>. Tente tocar a escala de Dó Maior (C D E F G A B C) deslizando um dedo da esquerda para a direita ao longo do braço (horizontalmente).</p>
                 </div>
                 <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-200 hover:shadow-md transition">
                     <h3 class="font-bold text-emerald-900 text-lg mb-2">3. O Teste Cego 🙈</h3>
-                    <p class="text-xs text-slate-600 mb-3">Feche os olhos, deslize a mão e toque uma nota aleatória numa das duas cordas mais graves (6 ou 5). Abra os olhos e adivinhe o nome da nota em menos de 3 segundos usando os pontos de referência.</p>
+                    <p class="text-xs text-slate-600 mb-3">Feche os olhos, deslize a mão e toque uma nota aleatória na 6ª corda. Abra os olhos e adivinhe o nome dela em menos de 3 segundos usando as casas com pontos como referência.</p>
                 </div>
             </div>
 
@@ -299,7 +310,7 @@
             <!-- TREINO PRÁTICO (O JOGO) -->
             <div class="bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-700 relative overflow-hidden">
                 <div class="text-center mb-6 relative z-10">
-                    <h2 class="text-2xl font-black text-white mb-2">Desafio do Braço</h2>
+                    <h2 class="text-2xl font-black text-white mb-2">O Desafio Interativo do Braço</h2>
                     <p id="braco-feedback-msg" class="text-slate-300 text-lg h-7 transition-colors duration-300">Qual é a nota assinalada a vermelho?</p>
                     <div class="mt-2 text-orange-400 font-bold">
                         Acertos seguidos: <span id="braco-score-display" class="text-2xl">0</span>
@@ -350,7 +361,7 @@
                         <span class="bg-indigo-100 text-indigo-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span> 
                         A Régua Musical: Tons e Semitons
                     </h2>
-                    <p class="mb-4">Antes de criar escalas ou acordes, precisamos medir a distância entre as notas. Na música ocidental, a menor distância entre duas notas é o <strong>Semitom</strong>. Dois semitons formam 1 <strong>Tom</strong>.</p>
+                    <p class="mb-4">A menor distância entre duas notas é o <strong>Semitom</strong>. Dois semitons formam 1 <strong>Tom</strong>.</p>
                     
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
                         <p class="font-semibold text-slate-800 mb-2">No Braço do Violão:</p>
@@ -475,7 +486,7 @@
                         <span class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">4</span> 
                         O Campo Harmônico
                     </h2>
-                    <p class="mb-4">Se aplicarmos a regra de empilhar notas (Tríades) usando <strong>apenas as notas da Escala Maior</strong>, nascem os 7 acordes do Campo Harmônico. A natureza dita que eles terão sempre esta configuração:</p>
+                    <p class="mb-4">Se aplicarmos a regra de empilhar notas usando <strong>apenas as notas da Escala Maior</strong>, nascem os 7 acordes do Campo Harmônico. Terão sempre esta configuração:</p>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-center">
@@ -529,21 +540,21 @@
                             <div class="text-2xl mt-1">🏠</div>
                             <div>
                                 <h4 class="font-bold text-slate-800">Tónica (Repouso)</h4>
-                                <p class="text-sm text-slate-600">Acordes: <strong>1º, 3º e 6º graus</strong> (Ex: C, Em, Am). Trazem sensação de paz, conclusão e estabilidade. É onde a música costuma começar e acabar.</p>
+                                <p class="text-sm text-slate-600">Acordes: <strong>1º, 3º e 6º graus</strong> (Ex: C, Em, Am). Trazem sensação de paz e conclusão.</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <div class="text-2xl mt-1">🚶‍♂️</div>
                             <div>
                                 <h4 class="font-bold text-slate-800">Subdominante (Afastamento)</h4>
-                                <p class="text-sm text-slate-600">Acordes: <strong>4º e 2º graus</strong> (Ex: F, Dm). Sensação de movimento, de sair de casa para dar um passeio. Prepara o terreno para o clímax.</p>
+                                <p class="text-sm text-slate-600">Acordes: <strong>4º e 2º graus</strong> (Ex: F, Dm). Sensação de sair de casa para dar um passeio.</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
                             <div class="text-2xl mt-1">⚡</div>
                             <div>
                                 <h4 class="font-bold text-slate-800">Dominante (Tensão)</h4>
-                                <p class="text-sm text-slate-600">Acordes: <strong>5º e 7º graus</strong> (Ex: G, Bdim). O clímax! Cria uma tensão enorme que "exige" ser resolvida voltando para a Tónica (Casa).</p>
+                                <p class="text-sm text-slate-600">Acordes: <strong>5º e 7º graus</strong> (Ex: G, Bdim). O clímax! Exige ser resolvida voltando para a Tónica.</p>
                             </div>
                         </div>
                     </div>
@@ -555,34 +566,27 @@
                         <span class="bg-cyan-100 text-cyan-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">6</span>
                         O Segredo de Tocar de Ouvido
                     </h2>
-                    <p class="mb-4">Tocar de ouvido parece magia, mas é pura lógica e treino! Quando você domina os Campos Harmônicos, 80% do trabalho de adivinhação desaparece. Veja o passo a passo infalível:</p>
+                    <p class="mb-4">Tocar de ouvido é pura lógica e treino! Veja o passo a passo infalível:</p>
                     <div class="space-y-3">
                         <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-start">
                             <div class="text-xl mt-1">🎸</div>
                             <div>
                                 <strong class="text-cyan-700 block mb-1">Passo 1: O Baixo</strong>
-                                <span class="text-sm text-slate-600">Ouça a música e tente encontrar a nota mais grave (o baixo) na sexta ou quinta corda do violão. Vá tocando casa por casa até achar a nota que "casa" perfeitamente com a música. Essa nota geralmente dá o nome ao acorde.</span>
+                                <span class="text-sm text-slate-600">Encontre a nota mais grave na sexta ou quinta corda do violão. Essa nota geralmente dá o nome ao acorde.</span>
                             </div>
                         </div>
                         <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-start">
                             <div class="text-xl mt-1">🎭</div>
                             <div>
                                 <strong class="text-cyan-700 block mb-1">Passo 2: Feliz ou Triste?</strong>
-                                <span class="text-sm text-slate-600">Descobriu a nota base? Agora monte o acorde Maior e depois o Menor com ela. Qual combina mais com a emoção da música naquele segundo? Se for uma balada melancólica, provavelmente é menor.</span>
+                                <span class="text-sm text-slate-600">Monte o acorde Maior e Menor com ela. Qual combina com a emoção?</span>
                             </div>
                         </div>
                         <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-start">
                             <div class="text-xl mt-1">📖</div>
                             <div>
                                 <strong class="text-cyan-700 block mb-1">Passo 3: Encaixe no Dicionário</strong>
-                                <span class="text-sm text-slate-600">Descobriu 2 ou 3 acordes da música? (Ex: <b>C</b>, <b>F</b> e <b>G</b>). Vá olhar as nossas tabelas de Campos Harmônicos! Em qual deles esses 3 acordes aparecem juntos? Acertou: no <b>Campo de Dó</b>! Agora você já sabe que os próximos acordes da música provavelmente serão os outros irmãos (Dm, Em ou Am). Não precisa testar ao acaso!</span>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 flex gap-3 items-start">
-                            <div class="text-xl mt-1">🔮</div>
-                            <div>
-                                <strong class="text-cyan-700 block mb-1">Passo 4: Preveja o Futuro</strong>
-                                <span class="text-sm text-slate-600">A música criou uma tensão enorme? O cantor vai dar aquele agudo antes do refrão? Prepare o acorde <b>Dominante</b> (Grau 5º)! O refrão explodiu e a música "chegou em casa e relaxou"? É hora de bater no acorde da <b>Tônica</b> (Grau 1º)!</span>
+                                <span class="text-sm text-slate-600">Descobriu 2 acordes? (Ex: <b>C</b> e <b>F</b>). Vá ao Campo Harmônico. Onde aparecem juntos? Acertou: Campo de Dó! Os próximos já estão limitados!</span>
                             </div>
                         </div>
                     </div>
@@ -594,22 +598,22 @@
                         <span class="bg-fuchsia-100 text-fuchsia-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">7</span>
                         O Tempero da Música (Sétimas e Extensões)
                     </h2>
-                    <p class="mb-4">Se os acordes Maiores e Menores são o "arroz e feijão", as Sétimas (7), Nonas (9) e Quartas Suspensas (sus4) são o <strong>tempero</strong>. Elas adicionam uma "cor" especial à emoção do acorde básico.</p>
+                    <p class="mb-4">As Sétimas (7), Nonas (9) e Quartas Suspensas (sus4) são o <strong>tempero</strong>. Elas adicionam "cor" à emoção do acorde básico.</p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
                         <div class="bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-200">
                             <div class="text-xl font-black text-fuchsia-700 mb-1">C7 / G7</div>
                             <h4 class="font-bold text-slate-800 text-sm">Sétima (Dominante)</h4>
-                            <p class="text-xs text-slate-600 mt-2">Aumenta a tensão brutalmente! Parece que o acorde está "pedindo" para mudar e resolver. É o DNA absoluto do Blues, MPB e Bossa Nova.</p>
+                            <p class="text-xs text-slate-600 mt-2">Aumenta a tensão brutalmente! O acorde "pede" para resolver. DNA do Blues e MPB.</p>
                         </div>
                         <div class="bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-200">
                             <div class="text-xl font-black text-fuchsia-700 mb-1">Cmaj7 (7M)</div>
                             <h4 class="font-bold text-slate-800 text-sm">Sétima Maior</h4>
-                            <p class="text-xs text-slate-600 mt-2">Um som sofisticado, sonhador, aveludado e relaxante. Dá uma sensação de flutuar no ar. Marca registrada do Jazz, MPB e do estilo Lo-Fi.</p>
+                            <p class="text-xs text-slate-600 mt-2">Um som sofisticado, sonhador e relaxante. Marca registrada do Jazz e Bossa Nova.</p>
                         </div>
                         <div class="bg-fuchsia-50 p-4 rounded-xl border border-fuchsia-200">
                             <div class="text-xl font-black text-fuchsia-700 mb-1">Csus4 / Asus2</div>
                             <h4 class="font-bold text-slate-800 text-sm">Acordes Suspensos</h4>
-                            <p class="text-xs text-slate-600 mt-2">Retiramos a 3ª do acorde, então eles não são nem felizes nem tristes. Ficam "suspensos" no vazio, aguardando uma definição. Lindos para dedilhados no Pop e Rock.</p>
+                            <p class="text-xs text-slate-600 mt-2">Retiramos a 3ª, então não são felizes nem tristes. Ficam "suspensos" no vazio.</p>
                         </div>
                     </div>
                 </div>
@@ -620,12 +624,12 @@
                         <span class="bg-orange-100 text-orange-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">8</span>
                         Dominando o Ritmo (A Mão Direita)
                     </h2>
-                    <p class="mb-4">Não adianta saber as posições com a mão esquerda se você não souber o ritmo com a mão direita! A batida é a "pulsação vital" da música.</p>
+                    <p class="mb-4">A batida é a "pulsação vital" da música.</p>
                     <div class="flex flex-col sm:flex-row items-center gap-6 bg-orange-50 p-4 rounded-xl border border-orange-200">
                         <div class="text-5xl drop-shadow-sm">⏱️</div>
                         <div>
                             <h4 class="font-bold text-orange-800 text-lg mb-1">O que é o Compasso 4/4?</h4>
-                            <p class="text-sm text-orange-900 leading-relaxed mb-3">Cerca de 90% das músicas Pop e Rock usam o compasso 4/4. Significa que a banda conta mentalmente "1, 2, 3, 4" repetidamente. O "1" é sempre a batida mais forte (Acentuação). Experimente ligar o rádio e contar "<b>1</b>, 2, 3, 4" batendo o pé no chão.</p>
+                            <p class="text-sm text-orange-900 leading-relaxed mb-3">Cerca de 90% das músicas Pop usam o compasso 4/4. Conte mentalmente "<b>1</b>, 2, 3, 4". O "1" é sempre a batida mais forte.</p>
                             <button onclick="mostrarMetronomo()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition text-sm flex items-center gap-2 justify-center w-full sm:w-auto">
                                 Praticar agora no Metrónomo &rarr;
                             </button>
@@ -639,7 +643,7 @@
                         <span class="bg-teal-100 text-teal-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">9</span>
                         A Biblioteca de Batidas (Ritmos)
                     </h2>
-                    <p class="mb-4">Abaixo estão os padrões rítmicos mais populares do mundo. A legenda é simples: <strong>&darr; (Tocar para baixo)</strong>, <strong>&uarr; (Tocar para cima)</strong> e <strong>X (Abafar as cordas)</strong>.</p>
+                    <p class="mb-4">Legenda: <strong>&darr; (Para baixo)</strong>, <strong>&uarr; (Para cima)</strong> e <strong>X (Abafar cordas)</strong>.</p>
                     
                     <div class="space-y-4">
                         <div class="bg-teal-50 p-4 rounded-xl border border-teal-200">
@@ -647,7 +651,6 @@
                                 <h3 class="font-bold text-teal-800 text-lg">1. Batida Pop / Rock (Fogueira)</h3>
                                 <span class="text-[10px] font-bold bg-teal-200 text-teal-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
                             </div>
-                            <p class="text-sm text-slate-600 mb-3">A batida mais versátil de todas. Se dominar este ritmo, toca 80% das músicas acústicas ocidentais.</p>
                             <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
                                 <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">1</span></div>
                                 <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">2</span></div>
@@ -664,7 +667,6 @@
                                 <h3 class="font-bold text-teal-800 text-lg">2. Folk / Indie Acústico</h3>
                                 <span class="text-[10px] font-bold bg-teal-200 text-teal-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
                             </div>
-                            <p class="text-sm text-slate-600 mb-3">O clássico ritmo de sucessos como <em>Wonderwall</em>. O segredo é o movimento constante da mão direita: mesmo quando não bate nas cordas, a mão continua a subir e descer.</p>
                             <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
                                 <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">1</span></div>
                                 <div class="w-12 h-14 bg-white border border-teal-300 rounded-lg flex flex-col items-center justify-center shadow-sm"><span class="text-2xl font-black text-slate-800">&darr;</span><span class="text-[10px] text-slate-400 font-bold mt-1">2</span></div>
@@ -684,27 +686,21 @@
                         <span class="bg-violet-100 text-violet-600 w-8 h-8 rounded-full flex items-center justify-center text-sm">10</span>
                         A Grande Biblioteca de Dedilhados (Arpejos)
                     </h2>
-                    <p class="mb-4">O dedilhado traz delicadeza e emoção à música. Em vez de usar palheta, puxamos as cordas uma a uma. Na linguagem internacional, os dedos da mão direita são chamados de <strong>P-I-M-A</strong>:</p>
+                    <p class="mb-4">Dedos da mão direita: <strong>P-I-M-A</strong>:</p>
                     
                     <div class="flex flex-wrap gap-3 mb-6 justify-center sm:justify-start text-sm">
-                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">P</strong> = Polegar <span class="text-slate-500">(Toca os Baixos nas cordas 6, 5 ou 4)</span></div>
-                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">I</strong> = Indicador <span class="text-slate-500">(Toca sempre a corda 3 - Sol)</span></div>
-                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">M</strong> = Médio <span class="text-slate-500">(Toca sempre a corda 2 - Si)</span></div>
-                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">A</strong> = Anelar <span class="text-slate-500">(Toca sempre a corda 1 - Mi)</span></div>
+                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">P</strong> = Polegar <span class="text-slate-500">(Baixos: 6, 5 ou 4)</span></div>
+                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">I</strong> = Indicador <span class="text-slate-500">(Corda 3)</span></div>
+                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">M</strong> = Médio <span class="text-slate-500">(Corda 2)</span></div>
+                        <div class="bg-violet-50 px-4 py-2 rounded-lg border border-violet-200"><strong class="text-violet-800 text-lg">A</strong> = Anelar <span class="text-slate-500">(Corda 1)</span></div>
                     </div>
 
-                    <p class="mb-4 text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                        <strong>Dica de Ouro:</strong> O Polegar é o chefe! Ele dita o ritmo e o acorde. Se o acorde for Dó (C) ou Lá menor (Am), o Polegar toca na 5ª corda. Se for Mi menor (Em) ou Sol (G), toca na 6ª corda. Se for Ré (D), toca na 4ª corda.
-                    </p>
-
                     <div class="space-y-4">
-                        <!-- Padrão 1: O Básico Ascendente -->
                         <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
                             <div class="flex justify-between items-center mb-2">
                                 <h3 class="font-bold text-violet-800 text-lg">1. O Básico Ascendente</h3>
                                 <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
                             </div>
-                            <p class="text-sm text-slate-600 mb-3">O primeiro padrão que qualquer violonista aprende. A mão simplesmente desce das cordas graves para as agudas.</p>
                             <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
                                 <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
                                 <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
@@ -713,13 +709,11 @@
                             </div>
                         </div>
 
-                        <!-- Padrão 2: O Básico Descendente -->
                         <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
                             <div class="flex justify-between items-center mb-2">
                                 <h3 class="font-bold text-violet-800 text-lg">2. O Básico Descendente</h3>
                                 <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">4/4</span>
                             </div>
-                            <p class="text-sm text-slate-600 mb-3">O oposto do anterior. Começa no baixo (Polegar), salta direto para a corda mais fina e sobe.</p>
                             <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
                                 <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
                                 <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">A</span></div>
@@ -728,13 +722,11 @@
                             </div>
                         </div>
 
-                        <!-- Padrão 3: Vai e Vem 6/8 -->
                         <div class="bg-violet-50 p-4 rounded-xl border border-violet-200">
                             <div class="flex justify-between items-center mb-2">
                                 <h3 class="font-bold text-violet-800 text-lg">3. O "Vai e Vem" (Hallelujah)</h3>
                                 <span class="text-[10px] font-bold bg-violet-200 text-violet-800 px-2 py-1 rounded tracking-widest uppercase">6/8</span>
                             </div>
-                            <p class="text-sm text-slate-600 mb-3">Ritmo perfeito para valsas ou compassos 6/8. É a batida icónica da música "Hallelujah" ou "House of the Rising Sun". A mão desce e volta a subir.</p>
                             <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
                                 <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-amber-600">P</span></div>
                                 <div class="w-12 h-12 bg-white border border-violet-300 rounded-lg flex items-center justify-center shadow-sm"><span class="text-xl font-black text-violet-700">I</span></div>
@@ -1476,28 +1468,24 @@
             const container = document.getElementById('braco-guitarra-container');
             container.innerHTML = '';
             
-            // Fundo de Madeira do Braço
             const bracoBg = document.createElement('div');
             bracoBg.className = 'w-full h-full bg-amber-900 border-y-4 border-amber-950 relative rounded-r-lg';
             
-            // Larguras das casas (diminuindo progressivamente, aproximação visual)
             const largurasCasas = [4, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5, 4.8, 4.6, 4.4];
             let posLeft = 0;
             
-            // Renderizar as Casas e Trastes
             for (let c = 0; c <= 12; c++) {
                 let largura = largurasCasas[c];
                 
                 const casaDiv = document.createElement('div');
                 casaDiv.className = 'absolute h-full border-r-2 border-slate-300';
                 if (c === 0) {
-                    casaDiv.className = 'absolute h-full border-r-8 border-slate-200 bg-slate-800'; // Pestana (Nut)
+                    casaDiv.className = 'absolute h-full border-r-8 border-slate-200 bg-slate-800'; 
                 }
                 
                 casaDiv.style.left = `${posLeft}%`;
                 casaDiv.style.width = `${largura}%`;
                 
-                // Marcadores (Bolinhas)
                 if ([3, 5, 7, 9].includes(c)) {
                     const dot = document.createElement('div');
                     dot.className = 'fret-marker';
@@ -1516,7 +1504,6 @@
                     casaDiv.appendChild(dot2);
                 }
                 
-                // Números das casas em baixo
                 if (c > 0 && c % 2 !== 0 || c === 12) {
                     const num = document.createElement('div');
                     num.className = 'absolute -bottom-6 w-full text-center text-xs font-bold text-slate-400';
@@ -1528,29 +1515,22 @@
                 posLeft += largura;
             }
             
-            // Renderizar as Cordas
             for (let i = 0; i < 6; i++) {
                 const corda = document.createElement('div');
                 corda.className = 'fretboard-string';
-                // Alturas: de cima para baixo (E aguda é a primeira visualmente de cima para baixo aqui? Não, corda 1 fica em baixo)
-                // Vamos desenhar corda 6 no topo visual, corda 1 no fundo visual.
                 const topPos = 10 + (i * 16); 
                 corda.style.top = `${topPos}%`;
-                // Cordas mais graves são mais grossas
                 corda.style.height = `${(6 - i) * 0.5 + 1}px`;
                 bracoBg.appendChild(corda);
             }
             
-            // Renderizar o Ponto Alvo (Se houver)
             if (alvoCorda !== null && alvoCasa !== null) {
-                // corda: 1 a 6. Visualmente 6 é o index 0, 1 é o index 5.
                 const visualIndexCorda = 6 - alvoCorda;
                 
-                // Calcular a posição Left do centro da casa
                 let targetLeft = 0;
                 for(let i=0; i<alvoCasa; i++) targetLeft += largurasCasas[i];
                 if (alvoCasa === 0) {
-                    targetLeft = 2; // No Nut
+                    targetLeft = 2; 
                 } else {
                     targetLeft += (largurasCasas[alvoCasa] / 2);
                 }
@@ -1571,7 +1551,6 @@
         function gerarNovaNotaBraco() {
             cordaAlvo = Math.floor(Math.random() * 6) + 1; // 1 a 6
             casaAlvo = Math.floor(Math.random() * 13); // 0 a 12
-            // O index da corda no afinacaoIndex: 0 é a corda 6, 5 é a corda 1
             const cordaIndex = 6 - cordaAlvo; 
             notaAlvoBraco = calcularNotaBraco(cordaIndex, casaAlvo);
             desenharBracoInterativo(cordaAlvo, casaAlvo);
