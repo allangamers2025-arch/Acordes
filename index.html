@@ -2175,10 +2175,22 @@
             display.innerHTML = '';
             
             const cordaIndex = 6 - cordaAtual;
+            
+            // NOVO: Array para guardar as notas e garantir que não há repetições
+            let notasNestaSequencia = [];
 
             for (let i = 0; i < 4; i++) {
-                let casaAleatoria = Math.floor(Math.random() * 13); // 0 a 12
-                let nota = calcularNotaBraco(cordaIndex, casaAleatoria);
+                let casaAleatoria;
+                let nota;
+                
+                // NOVO: O ciclo repete o sorteio se a nota já tiver saído nesta sequência
+                do {
+                    casaAleatoria = Math.floor(Math.random() * 13); // 0 a 12
+                    nota = calcularNotaBraco(cordaIndex, casaAleatoria);
+                } while (notasNestaSequencia.includes(nota));
+                
+                // Guarda a nota validada no array para não a repetir nas próximas iterações
+                notasNestaSequencia.push(nota);
                 
                 const nomesParaPt = { 'C': 'Dó', 'C#': 'Dó#', 'D': 'Ré', 'D#': 'Ré#', 'E': 'Mi', 'F': 'Fá', 'F#': 'Fá#', 'G': 'Sol', 'G#': 'Sol#', 'A': 'Lá', 'A#': 'Lá#', 'B': 'Si' };
                 
