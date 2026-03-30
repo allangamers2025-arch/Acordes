@@ -313,7 +313,7 @@
             </div>
 
             <!-- 🏆 DESAFIOS PRÁTICOS -->
-            <h3 class="text-xl font-black text-emerald-600 mb-4 border-b-2 border-emerald-200 pb-2 flex items-center gap-2 mt-8">
+            <h3 class="text-xl font-black text-emerald-600 mb-4 border-b-2 border-emerald-200 pb-2 mt-8 flex items-center gap-2">
                 <span class="text-2xl">🏆</span> Exercícios de Fixação (No Violão!)
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12 text-left">
@@ -337,8 +337,9 @@
                 <div class="text-center mb-6 relative z-10">
                     <h2 class="text-2xl font-black text-white mb-2">O Desafio Interativo do Braço</h2>
                     <p id="braco-feedback-msg" class="text-slate-300 text-lg h-7 transition-colors duration-300">Qual é a nota assinalada a vermelho?</p>
-                    <div class="mt-2 text-orange-400 font-bold">
-                        Acertos seguidos: <span id="braco-score-display" class="text-2xl">0</span>
+                    <div class="mt-2 flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 text-orange-400 font-bold">
+                        <div>Acertos seguidos: <span id="braco-score-display" class="text-2xl">0</span></div>
+                        <div class="flex items-center justify-center gap-1">⏳ Tempo: <span id="braco-timer-display" class="text-2xl w-10 text-left transition-colors duration-200">10s</span></div>
                     </div>
                     <div id="braco-revealed-note" class="h-12 mt-2 text-5xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md">
                     </div>
@@ -379,6 +380,39 @@
                     <button onclick="verificarNotaBraco('A')" class="bg-white hover:bg-orange-100 text-slate-800 font-bold py-2 rounded-lg shadow transition transform hover:scale-105 border-b-4 border-slate-300 active:border-b-0 active:translate-y-1 flex flex-col items-center justify-center leading-tight"><span>Lá</span><span class="text-[10px] text-slate-500">(A)</span></button>
                     <button onclick="verificarNotaBraco('A#')" class="bg-white hover:bg-orange-100 text-slate-800 font-bold py-2 rounded-lg shadow transition transform hover:scale-105 border-b-4 border-slate-300 active:border-b-0 active:translate-y-1 flex flex-col items-center justify-center leading-tight"><span>Lá#</span><span class="text-[10px] text-slate-500">(A#)</span></button>
                     <button onclick="verificarNotaBraco('B')" class="bg-white hover:bg-orange-100 text-slate-800 font-bold py-2 rounded-lg shadow transition transform hover:scale-105 border-b-4 border-slate-300 active:border-b-0 active:translate-y-1 flex flex-col items-center justify-center leading-tight"><span>Si</span><span class="text-[10px] text-slate-500">(B)</span></button>
+                </div>
+
+                <!-- NOVO: Treino de Sequência na Corda -->
+                <div id="sequencia-treino-container" class="hidden mt-8 max-w-2xl mx-auto bg-slate-700/50 p-6 rounded-2xl border border-slate-600 backdrop-blur-sm">
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-3">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="text-2xl">🎸</span> Treino de Sequência
+                        </h3>
+                        <button id="btn-nova-sequencia" onclick="gerarNovaSequencia()" class="hidden text-xs bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded-lg transition shadow-sm font-bold items-center gap-2">
+                            <span>🔄</span> Nova Sequência
+                        </button>
+                    </div>
+                    <p class="text-sm text-slate-300 mb-3">
+                        Toque esta sequência de 4 notas na <strong id="sequencia-corda-nome" class="text-orange-400"></strong>. Tente memorizar onde fica cada casa!
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4 justify-start">
+                        <span class="bg-amber-900/50 border border-amber-700/50 text-amber-400 text-[10px] font-bold px-2 py-1 rounded-md">⏱️ Treino: 2 minutos por sequência</span>
+                        <span class="bg-indigo-900/50 border border-indigo-700/50 text-indigo-400 text-[10px] font-bold px-2 py-1 rounded-md">🎚️ Metrónomo: 60 a 80 BPM</span>
+                    </div>
+
+                    <span id="sequencia-instrucao-dedo" class="hidden mb-4"></span>
+                    
+                    <!-- NOVO: Botão Começar a Treinar -->
+                    <div id="container-botao-iniciar-treino" class="text-center py-4">
+                        <button onclick="iniciarTreinoSequencia()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl shadow-md transition duration-200 transform hover:scale-105 text-lg flex items-center justify-center gap-2 mx-auto">
+                            <span>▶️</span> Começar a Treinar
+                        </button>
+                    </div>
+
+                    <div id="sequencia-notas-display" class="hidden flex-wrap gap-2 sm:gap-4 justify-center">
+                        <!-- Notas geradas aqui -->
+                    </div>
                 </div>
             </div>
 
@@ -1593,6 +1627,13 @@
         let casaAlvo = 0;
         let cordaSelecionadaPratica = 'todas';
 
+        // Variáveis do Timer do Braço
+        let timerBracoID = null;
+        let tempoRestanteBraco = 10;
+        let tempoTotalBraco = 10;
+        let esperandoProximaNota = false;
+        let jogoIniciado = false; // NOVO: Controla se o jogo já começou
+
         function calcularNotaBraco(cordaZeroIndex, casa) {
             // cordaZeroIndex: 0 é corda 6 (E), 5 é corda 1 (E)
             let index = (afinacaoIndex[cordaZeroIndex] + casa) % 12;
@@ -1817,8 +1858,9 @@
             expandirTamanhoCartao();
             bracoScore = 0;
             document.getElementById('braco-score-display').textContent = bracoScore;
+            esperandoProximaNota = false;
             
-            // NOVO: Limpar a nota ao entrar na tela
+            // Limpar a nota ao entrar na tela
             const revealedNote = document.getElementById('braco-revealed-note');
             if(revealedNote) revealedNote.className = "h-12 mt-2 text-5xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
             
@@ -1874,6 +1916,7 @@
         }
 
         function voltarParaInicio() {
+            clearInterval(timerBracoID); // Desligar o timer do braço se houver
             bracoScreen.classList.add('hidden');
             quizOptionsScreen.classList.add('hidden');
             camposScreen.classList.add('hidden');
@@ -1978,10 +2021,50 @@
             container.appendChild(bracoBg);
         }
 
+        function mostrarTelaBraco() {
+            startScreen.classList.add('hidden');
+            bracoScreen.classList.remove('hidden');
+            expandirTamanhoCartao();
+            bracoScore = 0;
+            document.getElementById('braco-score-display').textContent = bracoScore;
+            esperandoProximaNota = false;
+            jogoIniciado = false; // Garante que o jogo começa pausado
+            
+            // Limpar timer visualmente
+            clearInterval(timerBracoID);
+            const timerDisplay = document.getElementById('braco-timer-display');
+            timerDisplay.textContent = "--";
+            timerDisplay.classList.remove('text-red-500', 'animate-pulse');
+            
+            // Limpar a nota revelada (caso tenha ficado da vez anterior)
+            const revealedNote = document.getElementById('braco-revealed-note');
+            if(revealedNote) revealedNote.className = "h-12 mt-2 text-5xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
+            
+            // Mensagem para obrigar o clique
+            const msg = document.getElementById('braco-feedback-msg');
+            msg.textContent = "👇 Selecione uma opção de corda abaixo para começar!";
+            msg.className = "text-orange-400 font-bold text-lg animate-pulse";
+
+            // Desenha o braço limpo (sem a bolinha vermelha)
+            desenharBracoInterativo(null, null);
+
+            // Tira a cor laranja de todos os botões para mostrar que nenhum está ativo ainda
+            document.querySelectorAll('.corda-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-white');
+                btn.classList.add('bg-slate-700', 'text-slate-300');
+            });
+
+            // Oculta o painel de sequências
+            const sequenciaContainer = document.getElementById('sequencia-treino-container');
+            if (sequenciaContainer) sequenciaContainer.classList.add('hidden');
+        }
+
         function mudarCordaPratica(corda) {
             cordaSelecionadaPratica = corda;
             bracoScore = 0;
             document.getElementById('braco-score-display').textContent = bracoScore;
+            esperandoProximaNota = false;
+            jogoIniciado = true; // Agora sim, o jogo está valendo!
             
             // Atualizar UI dos botões de filtro
             document.querySelectorAll('.corda-filter-btn').forEach(btn => {
@@ -2004,9 +2087,169 @@
             if(revealedNote) revealedNote.className = "h-12 mt-2 text-5xl sm:text-6xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
 
             gerarNovaNotaBraco();
+
+            // Mostrar/Ocultar treino de sequência
+            const sequenciaContainer = document.getElementById('sequencia-treino-container');
+            if (corda === 'todas' || corda === 1 || corda === 2 || corda === 3) {
+                if (sequenciaContainer) sequenciaContainer.classList.add('hidden');
+            } else {
+                if (sequenciaContainer) {
+                    sequenciaContainer.classList.remove('hidden');
+                    const nomesCordas = {6: '6ª Corda (Mi)', 5: '5ª Corda (Lá)', 4: '4ª Corda (Ré)'};
+                    document.getElementById('sequencia-corda-nome').textContent = nomesCordas[corda];
+                    
+                    const instrucaoDedo = document.getElementById('sequencia-instrucao-dedo');
+                    if (instrucaoDedo) {
+                        instrucaoDedo.innerHTML = '💡 Dica: Use sempre o <strong>Polegar (P)</strong> para as 3 cordas graves (6ª, 5ª e 4ª)!';
+                        instrucaoDedo.className = 'text-amber-400 text-xs font-medium block mb-4 bg-amber-900/30 p-2 rounded border border-amber-700/50';
+                    }
+
+                    // Resetar a UI para o estado "Aguardando Início" com verificação de segurança (evita erros null)
+                    const containerIniciar = document.getElementById('container-botao-iniciar-treino');
+                    if (containerIniciar) containerIniciar.classList.remove('hidden');
+                    
+                    const notasDisplay = document.getElementById('sequencia-notas-display');
+                    if (notasDisplay) {
+                        notasDisplay.classList.add('hidden');
+                        notasDisplay.classList.remove('flex');
+                    }
+                    
+                    const btnNova = document.getElementById('btn-nova-sequencia');
+                    if (btnNova) {
+                        btnNova.classList.add('hidden');
+                        btnNova.classList.remove('flex');
+                    }
+                }
+            }
+        }
+
+        // Função para arrancar o Treino de Sequência
+        function iniciarTreinoSequencia() {
+            // Oculta o botão de Iniciar
+            const containerIniciar = document.getElementById('container-botao-iniciar-treino');
+            if (containerIniciar) containerIniciar.classList.add('hidden');
+            
+            // Mostra o display das notas
+            const notasDisplay = document.getElementById('sequencia-notas-display');
+            if (notasDisplay) {
+                notasDisplay.classList.remove('hidden');
+                notasDisplay.classList.add('flex');
+            }
+            
+            // Mostra o botão "Nova Sequência"
+            const btnNova = document.getElementById('btn-nova-sequencia');
+            if (btnNova) {
+                btnNova.classList.remove('hidden');
+                btnNova.classList.add('flex');
+            }
+
+            // Gera a primeira sequência de notas
+            gerarNovaSequencia();
+        }
+
+        function gerarNovaSequencia(corda = null) {
+            let cordaAtual = corda !== null ? corda : parseInt(cordaSelecionadaPratica);
+            if (isNaN(cordaAtual) || cordaAtual === 'todas') return;
+
+            const display = document.getElementById('sequencia-notas-display');
+            display.innerHTML = '';
+            
+            const cordaIndex = 6 - cordaAtual;
+
+            for (let i = 0; i < 4; i++) {
+                let casaAleatoria = Math.floor(Math.random() * 13); // 0 a 12
+                let nota = calcularNotaBraco(cordaIndex, casaAleatoria);
+                
+                const nomesParaPt = { 'C': 'Dó', 'C#': 'Dó#', 'D': 'Ré', 'D#': 'Ré#', 'E': 'Mi', 'F': 'Fá', 'F#': 'Fá#', 'G': 'Sol', 'G#': 'Sol#', 'A': 'Lá', 'A#': 'Lá#', 'B': 'Si' };
+                
+                let dedoBadge = '';
+                // Mostrar a marcação de dedo APENAS para os baixos (cordas 6, 5 e 4)
+                if (cordaAtual >= 4) {
+                    dedoBadge = `<div class="mt-2 text-[10px] bg-amber-900/50 border border-amber-700 text-amber-400 px-2 py-0.5 rounded-full font-bold">Dedo: P</div>`;
+                } 
+
+                const div = document.createElement('div');
+                div.className = "flex-1 min-w-[60px] bg-slate-800 border border-slate-600 rounded-xl p-3 flex flex-col items-center justify-center shadow-inner";
+                div.innerHTML = `
+                    <span class="text-2xl sm:text-3xl font-black text-emerald-400 mb-1">${nota}</span>
+                    <span class="text-[10px] font-bold text-slate-400 mb-2">${nomesParaPt[nota]}</span>
+                    <div class="bg-slate-700 w-full text-center rounded py-1">
+                        <span class="text-[9px] text-slate-300 uppercase tracking-widest block">Casa</span>
+                        <span class="block text-sm font-bold text-white">${casaAleatoria}</span>
+                    </div>
+                    ${dedoBadge}
+                `;
+                display.appendChild(div);
+                
+                if (i < 3) {
+                    const arrow = document.createElement('div');
+                    arrow.className = "flex items-center justify-center text-slate-500 font-black px-1";
+                    arrow.innerHTML = "&rarr;";
+                    display.appendChild(arrow);
+                }
+            }
+        }
+
+        function iniciarTimerBraco() {
+            clearInterval(timerBracoID);
+            
+            // Escala de Dificuldade!
+            if (bracoScore >= 100) {
+                tempoTotalBraco = 3;
+            } else if (bracoScore >= 50) {
+                tempoTotalBraco = 5;
+            } else {
+                tempoTotalBraco = 10;
+            }
+            
+            tempoRestanteBraco = tempoTotalBraco;
+            const timerDisplay = document.getElementById('braco-timer-display');
+            timerDisplay.textContent = tempoRestanteBraco + "s";
+            timerDisplay.classList.remove('text-red-500', 'animate-pulse');
+            
+            timerBracoID = setInterval(() => {
+                tempoRestanteBraco--;
+                timerDisplay.textContent = tempoRestanteBraco + "s";
+                
+                // Aviso pisca vermelho nos últimos 3 segundos
+                if (tempoRestanteBraco <= 3 && tempoRestanteBraco > 0) {
+                    timerDisplay.classList.add('text-red-500', 'animate-pulse');
+                }
+                
+                if (tempoRestanteBraco <= 0) {
+                    clearInterval(timerBracoID);
+                    timerDisplay.classList.remove('text-red-500', 'animate-pulse');
+                    esperandoProximaNota = true;
+                    
+                    // Tempo Esgotado!
+                    tocarSomTempoEsgotado();
+                    const msg = document.getElementById('braco-feedback-msg');
+                    const nomesParaPt = { 'C': 'Dó', 'C#': 'Dó#', 'D': 'Ré', 'D#': 'Ré#', 'E': 'Mi', 'F': 'Fá', 'F#': 'Fá#', 'G': 'Sol', 'G#': 'Sol#', 'A': 'Lá', 'A#': 'Lá#', 'B': 'Si' };
+                    const textoNota = `${nomesParaPt[notaAlvoBraco]} (${notaAlvoBraco})`;
+                    
+                    msg.textContent = `Tempo esgotado! Era um ${textoNota}.`;
+                    msg.className = "text-red-400 font-bold text-lg";
+                    bracoScore = 0;
+                    document.getElementById('braco-score-display').textContent = bracoScore;
+                    
+                    const revealedNote = document.getElementById('braco-revealed-note');
+                    revealedNote.innerHTML = textoNota;
+                    revealedNote.className = "h-12 mt-2 text-4xl sm:text-5xl font-black text-red-500 opacity-100 transition-all duration-300 flex items-center justify-center drop-shadow-md";
+                    
+                    setTimeout(() => {
+                        revealedNote.className = "h-12 mt-2 text-4xl sm:text-5xl font-black text-red-500 opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
+                        msg.textContent = "Qual é a nota assinalada a vermelho?";
+                        msg.className = "text-slate-300 text-lg";
+                        esperandoProximaNota = false;
+                        gerarNovaNotaBraco();
+                    }, 1500);
+                }
+            }, 1000);
         }
 
         function gerarNovaNotaBraco() {
+            if (!jogoIniciado) return; // Segurança extra
+
             if (cordaSelecionadaPratica === 'todas') {
                 cordaAlvo = Math.floor(Math.random() * 6) + 1; // 1 a 6
             } else {
@@ -2016,12 +2259,26 @@
             const cordaIndex = 6 - cordaAlvo; 
             notaAlvoBraco = calcularNotaBraco(cordaIndex, casaAlvo);
             desenharBracoInterativo(cordaAlvo, casaAlvo);
+            iniciarTimerBraco();
         }
 
         function verificarNotaBraco(notaEscolhida) {
+            // Trava o clique se o jogo ainda não tiver começado
+            if (!jogoIniciado) {
+                const msg = document.getElementById('braco-feedback-msg');
+                msg.textContent = "⚠️ Escolha uma corda primeiro (Ex: Todas) para iniciar!";
+                msg.className = "text-red-400 font-bold text-lg animate-pulse";
+                return;
+            }
+
+            if (esperandoProximaNota) return; // Evita clicar em botões enquanto a animação roda
+            
+            clearInterval(timerBracoID); // Para o relógio assim que responde
+            esperandoProximaNota = true;
+            
             inicializarAudio();
             const msg = document.getElementById('braco-feedback-msg');
-            const revealedNote = document.getElementById('braco-revealed-note'); // Elemento da nota revelada
+            const revealedNote = document.getElementById('braco-revealed-note');
             
             const nomesParaPt = { 'C': 'Dó', 'C#': 'Dó#', 'D': 'Ré', 'D#': 'Ré#', 'E': 'Mi', 'F': 'Fá', 'F#': 'Fá#', 'G': 'Sol', 'G#': 'Sol#', 'A': 'Lá', 'A#': 'Lá#', 'B': 'Si' };
             const textoNota = `${nomesParaPt[notaAlvoBraco]} (${notaAlvoBraco})`;
@@ -2041,15 +2298,13 @@
                 setTimeout(() => {
                     msg.textContent = "Qual é a nota assinalada a vermelho?";
                     msg.className = "text-slate-300 text-lg";
-                    
-                    // ESCONDER A NOTA
                     revealedNote.className = "h-12 mt-2 text-5xl sm:text-6xl font-black text-emerald-400 opacity-0 scale-100 transition-all duration-300 flex items-center justify-center drop-shadow-lg";
-                    
-                    gerarNovaNotaBraco();
-                }, 1200); 
+                    esperandoProximaNota = false;
+                    gerarNovaNotaBraco(); // Nova nota a cada acerto!
+                }, 1000); 
             } else {
                 tocarSomTempoEsgotado();
-                msg.textContent = `Ops! Era um ${textoNota}. Tente novamente!`;
+                msg.textContent = `Ops! Era um ${textoNota}.`;
                 msg.className = "text-red-400 font-bold text-lg";
                 bracoScore = 0;
                 document.getElementById('braco-score-display').textContent = bracoScore;
@@ -2058,10 +2313,13 @@
                 revealedNote.innerHTML = textoNota;
                 revealedNote.className = "h-12 mt-2 text-4xl sm:text-5xl font-black text-red-500 opacity-100 transition-all duration-300 flex items-center justify-center drop-shadow-md";
                 
-                // Esconder após 2 segundos
                 setTimeout(() => {
                     revealedNote.className = "h-12 mt-2 text-4xl sm:text-5xl font-black text-red-500 opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
-                }, 2000);
+                    msg.textContent = "Qual é a nota assinalada a vermelho?";
+                    msg.className = "text-slate-300 text-lg";
+                    esperandoProximaNota = false;
+                    gerarNovaNotaBraco(); // Nova nota a cada erro para continuar a fluidez
+                }, 1500);
             }
         }
 
