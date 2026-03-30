@@ -2029,6 +2029,7 @@
             document.getElementById('braco-score-display').textContent = bracoScore;
             esperandoProximaNota = false;
             jogoIniciado = false; // Garante que o jogo começa pausado
+            cordaSelecionadaPratica = null; // NOVO: Garante que o primeiro clique funciona sempre
             
             // Limpar timer visualmente
             clearInterval(timerBracoID);
@@ -2060,11 +2061,24 @@
         }
 
         function mudarCordaPratica(corda) {
+            // NOVO: Verifica se já clicou nesta corda antes (2º clique)
+            if (cordaSelecionadaPratica === corda) {
+                if (!jogoIniciado) {
+                    jogoIniciado = true; // Agora sim, o jogo está valendo!
+                    const msg = document.getElementById('braco-feedback-msg');
+                    msg.textContent = "Qual é a nota assinalada a vermelho?";
+                    msg.className = "text-slate-300 text-lg";
+                    gerarNovaNotaBraco(); // Arranca a nota e o timer!
+                }
+                return; // Sai da função para não resetar a UI
+            }
+
+            // 1º Clique ou mudança de corda: Prepara tudo mas NÃO inicia
             cordaSelecionadaPratica = corda;
             bracoScore = 0;
             document.getElementById('braco-score-display').textContent = bracoScore;
             esperandoProximaNota = false;
-            jogoIniciado = true; // Agora sim, o jogo está valendo!
+            jogoIniciado = false; // Mantém o jogo pausado!
             
             // Atualizar UI dos botões de filtro
             document.querySelectorAll('.corda-filter-btn').forEach(btn => {
@@ -2079,14 +2093,20 @@
                 activeBtn.classList.add('bg-orange-500', 'text-white');
             }
             
-            // Limpar mensagens
+            // Limpar timer e braço visualmente
+            clearInterval(timerBracoID);
+            const timerDisplay = document.getElementById('braco-timer-display');
+            timerDisplay.textContent = "--";
+            timerDisplay.classList.remove('text-red-500', 'animate-pulse');
+            desenharBracoInterativo(null, null);
+
+            // Mensagem a pedir o segundo clique
             const msg = document.getElementById('braco-feedback-msg');
-            msg.textContent = "Qual é a nota assinalada a vermelho?";
-            msg.className = "text-slate-300 text-lg";
+            msg.textContent = "👇 Clique novamente neste botão para iniciar o cronómetro!";
+            msg.className = "text-emerald-400 font-bold text-lg animate-pulse";
+
             const revealedNote = document.getElementById('braco-revealed-note');
             if(revealedNote) revealedNote.className = "h-12 mt-2 text-5xl sm:text-6xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
-
-            gerarNovaNotaBraco();
 
             // Mostrar/Ocultar treino de sequência
             const sequenciaContainer = document.getElementById('sequencia-treino-container');
@@ -2266,7 +2286,11 @@
             // Trava o clique se o jogo ainda não tiver começado
             if (!jogoIniciado) {
                 const msg = document.getElementById('braco-feedback-msg');
-                msg.textContent = "⚠️ Escolha uma corda primeiro (Ex: Todas) para iniciar!";
+                if (cordaSelecionadaPratica !== null) {
+                    msg.textContent = "⚠️ Clique novamente no botão da corda para iniciar o cronómetro!";
+                } else {
+                    msg.textContent = "⚠️ Selecione uma corda abaixo para começar!";
+                }
                 msg.className = "text-red-400 font-bold text-lg animate-pulse";
                 return;
             }
