@@ -351,6 +351,20 @@
                     </div>
                 </div>
 
+                <!-- NOVO: Seletor de Cordas -->
+                <div class="mt-2 mb-6 relative z-10 max-w-2xl mx-auto text-center">
+                    <p class="text-slate-400 text-sm font-bold mb-3 uppercase tracking-wider">Treinar corda específica:</p>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <button onclick="mudarCordaPratica('todas')" id="btn-corda-todas" class="corda-filter-btn px-4 py-2 rounded-full font-bold text-sm bg-orange-500 text-white shadow-sm transition">Todas</button>
+                        <button onclick="mudarCordaPratica(6)" id="btn-corda-6" class="corda-filter-btn px-3 py-2 rounded-full font-bold text-sm bg-slate-700 text-slate-300 hover:bg-slate-600 transition">6ª (E)</button>
+                        <button onclick="mudarCordaPratica(5)" id="btn-corda-5" class="corda-filter-btn px-3 py-2 rounded-full font-bold text-sm bg-slate-700 text-slate-300 hover:bg-slate-600 transition">5ª (A)</button>
+                        <button onclick="mudarCordaPratica(4)" id="btn-corda-4" class="corda-filter-btn px-3 py-2 rounded-full font-bold text-sm bg-slate-700 text-slate-300 hover:bg-slate-600 transition">4ª (D)</button>
+                        <button onclick="mudarCordaPratica(3)" id="btn-corda-3" class="corda-filter-btn px-3 py-2 rounded-full font-bold text-sm bg-slate-700 text-slate-300 hover:bg-slate-600 transition">3ª (G)</button>
+                        <button onclick="mudarCordaPratica(2)" id="btn-corda-2" class="corda-filter-btn px-3 py-2 rounded-full font-bold text-sm bg-slate-700 text-slate-300 hover:bg-slate-600 transition">2ª (B)</button>
+                        <button onclick="mudarCordaPratica(1)" id="btn-corda-1" class="corda-filter-btn px-3 py-2 rounded-full font-bold text-sm bg-slate-700 text-slate-300 hover:bg-slate-600 transition">1ª (E)</button>
+                    </div>
+                </div>
+
                 <!-- Botões de Resposta -->
                 <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 mt-4 relative z-10 max-w-2xl mx-auto">
                     <button onclick="verificarNotaBraco('C')" class="bg-white hover:bg-orange-100 text-slate-800 font-bold py-2 rounded-lg shadow transition transform hover:scale-105 border-b-4 border-slate-300 active:border-b-0 active:translate-y-1 flex flex-col items-center justify-center leading-tight"><span>Dó</span><span class="text-[10px] text-slate-500">(C)</span></button>
@@ -1232,6 +1246,7 @@
         let notaAlvoBraco = '';
         let cordaAlvo = 1;
         let casaAlvo = 0;
+        let cordaSelecionadaPratica = 'todas';
 
         function calcularNotaBraco(cordaZeroIndex, casa) {
             // cordaZeroIndex: 0 é corda 6 (E), 5 é corda 1 (E)
@@ -1618,8 +1633,40 @@
             container.appendChild(bracoBg);
         }
 
+        function mudarCordaPratica(corda) {
+            cordaSelecionadaPratica = corda;
+            bracoScore = 0;
+            document.getElementById('braco-score-display').textContent = bracoScore;
+            
+            // Atualizar UI dos botões de filtro
+            document.querySelectorAll('.corda-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-500', 'text-white');
+                btn.classList.add('bg-slate-700', 'text-slate-300');
+            });
+            
+            const btnId = corda === 'todas' ? 'btn-corda-todas' : `btn-corda-${corda}`;
+            const activeBtn = document.getElementById(btnId);
+            if(activeBtn) {
+                activeBtn.classList.remove('bg-slate-700', 'text-slate-300');
+                activeBtn.classList.add('bg-orange-500', 'text-white');
+            }
+            
+            // Limpar mensagens
+            const msg = document.getElementById('braco-feedback-msg');
+            msg.textContent = "Qual é a nota assinalada a vermelho?";
+            msg.className = "text-slate-300 text-lg";
+            const revealedNote = document.getElementById('braco-revealed-note');
+            if(revealedNote) revealedNote.className = "h-12 mt-2 text-5xl sm:text-6xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
+
+            gerarNovaNotaBraco();
+        }
+
         function gerarNovaNotaBraco() {
-            cordaAlvo = Math.floor(Math.random() * 6) + 1; // 1 a 6
+            if (cordaSelecionadaPratica === 'todas') {
+                cordaAlvo = Math.floor(Math.random() * 6) + 1; // 1 a 6
+            } else {
+                cordaAlvo = parseInt(cordaSelecionadaPratica);
+            }
             casaAlvo = Math.floor(Math.random() * 13); // 0 a 12
             const cordaIndex = 6 - cordaAlvo; 
             notaAlvoBraco = calcularNotaBraco(cordaIndex, casaAlvo);
