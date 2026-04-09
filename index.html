@@ -3139,21 +3139,22 @@
             }
 
             const btn = document.querySelector('button[onclick="marcarTempo()"]');
-            btn.classList.add('bg-indigo-50', 'border-indigo-300');
-            setTimeout(() => {
-                btn.classList.remove('bg-indigo-50', 'border-indigo-300');
-            }, 100);
+            if(btn) {
+                btn.classList.add('bg-indigo-50', 'border-indigo-300');
+                setTimeout(() => {
+                    btn.classList.remove('bg-indigo-50', 'border-indigo-300');
+                }, 100);
+            }
         }
 
-        // --- LÓGICA DO AFINADOR (ALTERADO PARA AFINADOR DE VIOLÃO) ---
+        // --- LÓGICA DO AFINADOR LIVRE (CROMÁTICO) ---
         let audioCtxAfinador = null;
         let analyserAfinador = null;
         let streamAfinador = null;
         let pitchDetectionFrameId = null;
         let isDetectingPitch = false;
-        let ultimaNotaAfinador = '--'; // GUARDA A ÚLTIMA NOTA TOCADA
+        let ultimaNotaAfinador = '--'; // MEMÓRIA DA ÚLTIMA NOTA
         const bufAfinador = new Float32Array(2048);
-        const notasAfinador = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
         function mostrarAfinadorLivre() {
             startScreen.classList.add('hidden');
@@ -3200,7 +3201,6 @@
         function pararDeteccaoVoz() {
             if (!isDetectingPitch) return;
             isDetectingPitch = false;
-            ultimaNotaAfinador = '--'; // Reseta a nota ao desligar
             
             if (pitchDetectionFrameId) cancelAnimationFrame(pitchDetectionFrameId);
             
@@ -3221,17 +3221,23 @@
             document.getElementById('afinador-status').classList.remove('animate-pulse');
             
             const notaDisplay = document.getElementById('afinador-nota');
-            notaDisplay.innerHTML = '--';
-            notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-800 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
             
-            document.getElementById('afinador-hz').textContent = '0.0';
+            // Quando desliga, mostra a última nota detetada a cinza, ou os traços se nunca captou nada
+            if (ultimaNotaAfinador !== '--') {
+                notaDisplay.innerHTML = ultimaNotaAfinador;
+                notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-400 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
+            } else {
+                notaDisplay.innerHTML = '--';
+                notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-800 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
+            }
+            
             document.getElementById('afinador-ponteiro').style.left = '50%';
             document.getElementById('afinador-ponteiro').style.backgroundColor = '#1e293b'; 
             document.getElementById('afinador-pulse').style.transform = 'scale(1)';
             document.getElementById('afinador-pulse').style.opacity = '0';
         }
 
-        // Algoritmo de Autocorrelação para encontrar a frequência exata (Pitch Detection)
+        // Algoritmo de Autocorrelação para encontrar a frequência exata
         function autoCorrelate(buf, sampleRate) {
             let SIZE = buf.length;
             let rms = 0;
@@ -3240,7 +3246,7 @@
                 rms += val * val;
             }
             rms = Math.sqrt(rms / SIZE);
-            // Threshold aumentado (0.015) para que o ruído de fundo não esconda a última nota
+            // Threshold afinado para cortar ruído de fundo imediatamente
             if (rms < 0.015) return -1; 
 
             let r1 = 0, r2 = SIZE - 1, thres = 0.2;
@@ -3266,6 +3272,10 @@
                 }
             }
             let T0 = maxpos;
+            
+            // Segurança contra matemática impossível
+            if (T0 === 0 || T0 === -1) return -1;
+            
             let x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
             let a = (x1 + x3 - 2 * x2) / 2;
             let b = (x3 - x1) / 2;
@@ -3298,48 +3308,56 @@
             const ponteiro = document.getElementById('afinador-ponteiro');
             const pulse = document.getElementById('afinador-pulse');
 
-            // Formatação Exata Solicitada para Todas as Notas Cromáticas
+            // Array com a formatação limpa das notas
             const notasFormatoPT = [
                 "Dó (C)", "Dó#", "Ré (D)", "Ré#", "Mi (E)", "Fá (F)", 
                 "Fá#", "Sol (G)", "Sol#", "Lá (A)", "Lá#", "Si (B)"
             ];
 
-            if (ac == -1) {
-                // Silêncio: Mantém a última nota visível, mas pintada de cinza
+            // Verifica se está em silêncio ou se a leitura matemática falhou
+            if (ac === -1 || isNaN(ac) || !isFinite(ac)) {
+                
+                // Silêncio: Congela a última nota para não desaparecer!
                 if (ultimaNotaAfinador !== '--') {
                     notaDisplay.innerHTML = ultimaNotaAfinador;
-                    notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-300 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
+                    notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-400 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
                 } else {
                     notaDisplay.innerHTML = '--';
                     notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-800 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
                 }
 
-                // O ponteiro regressa ao centro sem cor
+                // O ponteiro regressa ao centro com cor neutra
                 ponteiro.style.left = '50%';
-                ponteiro.style.backgroundColor = '#cbd5e1'; 
+                ponteiro.style.backgroundColor = '#94a3b8'; 
                 pulse.style.opacity = '0';
                 pulse.style.transform = 'scale(1)';
+                
             } else {
                 const pitch = ac;
                 const note = noteFromPitch(pitch);
+                
+                // Blindagem extra: impede bugs se a frequência for demasiado baixa
+                if (isNaN(note) || note < 0) {
+                    pitchDetectionFrameId = requestAnimationFrame(updatePitch);
+                    return;
+                }
+
                 const formatada = notasFormatoPT[note % 12];
                 const detune = centsOffFromPitch(pitch, note);
                 
-                // Grava a última nota detetada!
+                // A MAGIA: Guarda a nota correta na memória global
                 ultimaNotaAfinador = formatada;
                 
-                // Atualizar os Displays
+                // Atualiza a tela com o som detetado
                 notaDisplay.innerHTML = formatada;
                 hzDisplay.textContent = pitch.toFixed(1);
                 
-                // Mapear detune para a barra visual (-50 a +50 vira 5% a 95%).
                 let posPercent = 50 + (detune);
                 if (posPercent < 5) posPercent = 5;
                 if (posPercent > 95) posPercent = 95;
                 
                 ponteiro.style.left = `${posPercent}%`;
 
-                // Efeito visual circular baseado no volume
                 let volumeMax = 0;
                 for(let i=0; i<bufAfinador.length; i++) {
                     if(Math.abs(bufAfinador[i]) > volumeMax) volumeMax = Math.abs(bufAfinador[i]);
@@ -3347,21 +3365,21 @@
                 pulse.style.opacity = '0.5';
                 pulse.style.transform = `scale(${1 + (volumeMax * 2)})`;
 
-                // Reset das classes da nota para aplicar a cor certa
+                // Reseta as classes para aplicar a cor do afinador
                 notaDisplay.className = 'text-5xl sm:text-6xl font-black w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
                 
                 if (Math.abs(detune) < 5) {
-                    // Afinação Perfeita
+                    // Verde (Afinado)
                     notaDisplay.classList.add('text-emerald-500');
                     ponteiro.style.backgroundColor = '#10b981'; 
                     pulse.className = 'absolute w-32 h-32 bg-emerald-100 rounded-full transition-all duration-75';
                 } else if (Math.abs(detune) < 20) {
-                    // Quase lá
+                    // Laranja (Quase lá)
                     notaDisplay.classList.add('text-amber-500');
                     ponteiro.style.backgroundColor = '#f59e0b'; 
                     pulse.className = 'absolute w-32 h-32 bg-amber-100 rounded-full transition-all duration-75';
                 } else {
-                    // Desafinado (muito alto ou muito baixo)
+                    // Vermelho (Desafinado)
                     notaDisplay.classList.add('text-rose-500');
                     ponteiro.style.backgroundColor = '#f43f5e'; 
                     pulse.className = 'absolute w-32 h-32 bg-rose-100 rounded-full transition-all duration-75';
@@ -3449,18 +3467,20 @@
             
             const pulse = document.getElementById('voz-pulse');
             
-            if (ac !== -1) {
+            if (ac !== -1 && !isNaN(ac) && isFinite(ac)) {
                 const note = noteFromPitch(ac);
-                const sym = notasAfinador[note % 12];
-                notasColetadas[sym] = (notasColetadas[sym] || 0) + 1; // Guarda a nota detetada no contador
-                
-                // Efeito visual que reage ao volume da voz
-                let volumeMax = 0;
-                for(let i=0; i<bufVoz.length; i++) {
-                    if(Math.abs(bufVoz[i]) > volumeMax) volumeMax = Math.abs(bufVoz[i]);
+                if (!isNaN(note) && note > 0) {
+                    const sym = notasAfinador[note % 12];
+                    notasColetadas[sym] = (notasColetadas[sym] || 0) + 1; // Guarda a nota detetada no contador
+                    
+                    // Efeito visual que reage ao volume da voz
+                    let volumeMax = 0;
+                    for(let i=0; i<bufVoz.length; i++) {
+                        if(Math.abs(bufVoz[i]) > volumeMax) volumeMax = Math.abs(bufVoz[i]);
+                    }
+                    pulse.style.opacity = '0.6';
+                    pulse.style.transform = `scale(${1 + (volumeMax * 3)})`;
                 }
-                pulse.style.opacity = '0.6';
-                pulse.style.transform = `scale(${1 + (volumeMax * 3)})`;
             } else {
                 pulse.style.opacity = '0.1';
                 pulse.style.transform = 'scale(1)';
