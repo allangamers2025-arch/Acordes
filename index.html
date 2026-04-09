@@ -169,6 +169,11 @@
                     <span>🎵</span> Estudar Campos Harmônicos
                 </button>
 
+                <!-- NOVO: Botão Afinador e Tom de Voz -->
+                <button onclick="mostrarAfinadorVoz()" class="w-full bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 text-rose-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
+                    <span>🎤</span> Descobrir Tom da Voz (Afinador)
+                </button>
+
                 <!-- Botão Metrônomo -->
                 <button onclick="mostrarMetronomo()" class="w-full bg-amber-50 hover:bg-amber-100 border-2 border-amber-200 text-amber-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
                     <span>⏱️</span> Metrónomo
@@ -1707,6 +1712,46 @@
             </button>
         </div>
 
+        <!-- Tela do Afinador / Tom da Voz -->
+        <div id="afinador-screen" class="hidden text-center fade-in w-full">
+            <h1 class="text-3xl font-extrabold text-rose-600 mb-2 text-center">Tom da Voz & Afinador</h1>
+            <p class="text-slate-500 mb-8 text-center text-lg">Cante, fale ou toque uma corda do violão para descobrir a nota exata.</p>
+            
+            <div class="bg-white rounded-2xl p-8 mb-8 border border-slate-200 shadow-sm max-w-md mx-auto relative overflow-hidden">
+                <div id="afinador-status" class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">
+                    Microfone Desligado
+                </div>
+                
+                <div class="flex justify-center items-center h-48 mb-4 relative">
+                    <div id="afinador-pulse" class="absolute w-32 h-32 bg-rose-100 rounded-full opacity-0 transition-all duration-75"></div>
+                    <div id="afinador-nota" class="text-8xl font-black text-slate-800 z-10 transition-colors duration-200 relative flex items-center justify-center">
+                        --
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center px-4 mb-6">
+                    <div class="text-xs font-bold text-slate-400 w-16 text-right">GRAVE</div>
+                    <div class="flex-1 mx-4 h-2 bg-slate-200 rounded-full relative overflow-hidden">
+                        <div id="afinador-ponteiro" class="absolute top-0 w-4 h-full bg-slate-800 rounded-full -ml-2 transition-all duration-75" style="left: 50%;"></div>
+                        <div class="absolute top-0 left-1/2 w-0.5 h-full bg-rose-500 -ml-[1px]"></div>
+                    </div>
+                    <div class="text-xs font-bold text-slate-400 w-16 text-left">AGUDO</div>
+                </div>
+                
+                <div class="text-lg font-medium text-slate-500 mb-8">
+                    <span id="afinador-hz">0.0</span> Hz
+                </div>
+                
+                <button id="btn-toggle-afinador" onclick="toggleAfinador()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2">
+                    <span>🎤</span> Ligar Microfone
+                </button>
+            </div>
+
+            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar ao Menu
+            </button>
+        </div>
+
     </div>
 
     <script>
@@ -1889,6 +1934,7 @@
         const aulaScreen = document.getElementById('aula-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
+        const afinadorScreen = document.getElementById('afinador-screen'); // NOVO
         
         const chordDiagram = document.getElementById('chord-diagram');
         const optionsContainer = document.getElementById('options-container');
@@ -2114,11 +2160,17 @@
             teoriaExplicacaoScreen.classList.add('hidden');
             aulaScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
+            if (afinadorScreen) afinadorScreen.classList.add('hidden'); // NOVO
             startScreen.classList.remove('hidden');
             restaurarTamanhoCartao();
             
             if (metronomoTocando) {
                 toggleMetronomo();
+            }
+
+            // NOVO: Desligar o afinador se estiver rodando para não manter o microfone ligado
+            if (typeof pararDeteccaoVoz === 'function') {
+                pararDeteccaoVoz();
             }
         }
         
@@ -3055,6 +3107,210 @@
             }, 100);
         }
 
+        // --- LÓGICA DO AFINADOR / TOM DA VOZ ---
+        let audioCtxAfinador = null;
+        let analyserAfinador = null;
+        let streamAfinador = null;
+        let pitchDetectionFrameId = null;
+        let isDetectingPitch = false;
+        const bufAfinador = new Float32Array(2048);
+        const notasAfinador = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+        function mostrarAfinadorVoz() {
+            startScreen.classList.add('hidden');
+            document.getElementById('afinador-screen').classList.remove('hidden');
+        }
+
+        function toggleAfinador() {
+            if (isDetectingPitch) {
+                pararDeteccaoVoz();
+            } else {
+                iniciarDeteccaoVoz();
+            }
+        }
+
+        async function iniciarDeteccaoVoz() {
+            try {
+                // Pede autorização para usar o microfone
+                streamAfinador = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioCtxAfinador = new (window.AudioContext || window.webkitAudioContext)();
+                analyserAfinador = audioCtxAfinador.createAnalyser();
+                analyserAfinador.fftSize = 2048;
+                
+                const source = audioCtxAfinador.createMediaStreamSource(streamAfinador);
+                source.connect(analyserAfinador);
+                
+                isDetectingPitch = true;
+                
+                const btn = document.getElementById('btn-toggle-afinador');
+                btn.classList.replace('bg-rose-500', 'bg-slate-700');
+                btn.classList.replace('hover:bg-rose-600', 'hover:bg-slate-800');
+                btn.innerHTML = '<span>🛑</span> Desligar Microfone';
+                
+                document.getElementById('afinador-status').textContent = 'Escutando a sua voz...';
+                document.getElementById('afinador-status').classList.replace('text-slate-400', 'text-emerald-500');
+                document.getElementById('afinador-status').classList.add('animate-pulse');
+                
+                updatePitch();
+            } catch (err) {
+                alert("Erro ao acessar o microfone. Verifique as permissões do seu navegador (ícone de cadeado na barra de endereço).");
+                console.error(err);
+            }
+        }
+
+        function pararDeteccaoVoz() {
+            if (!isDetectingPitch) return;
+            isDetectingPitch = false;
+            
+            if (pitchDetectionFrameId) cancelAnimationFrame(pitchDetectionFrameId);
+            
+            if (streamAfinador) {
+                streamAfinador.getTracks().forEach(track => track.stop());
+            }
+            if (audioCtxAfinador && audioCtxAfinador.state !== 'closed') {
+                audioCtxAfinador.close();
+            }
+            
+            const btn = document.getElementById('btn-toggle-afinador');
+            btn.classList.replace('bg-slate-700', 'bg-rose-500');
+            btn.classList.replace('hover:bg-slate-800', 'hover:bg-rose-600');
+            btn.innerHTML = '<span>🎤</span> Ligar Microfone';
+            
+            document.getElementById('afinador-status').textContent = 'Microfone Desligado';
+            document.getElementById('afinador-status').classList.replace('text-emerald-500', 'text-slate-400');
+            document.getElementById('afinador-status').classList.remove('animate-pulse');
+            
+            document.getElementById('afinador-nota').innerHTML = '--';
+            document.getElementById('afinador-nota').classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500');
+            document.getElementById('afinador-nota').classList.add('text-slate-800');
+            document.getElementById('afinador-hz').textContent = '0.0';
+            document.getElementById('afinador-ponteiro').style.left = '50%';
+            document.getElementById('afinador-ponteiro').style.backgroundColor = '#1e293b'; 
+            document.getElementById('afinador-pulse').style.transform = 'scale(1)';
+            document.getElementById('afinador-pulse').style.opacity = '0';
+        }
+
+        // Algoritmo de Autocorrelação para encontrar a frequência exata (Pitch Detection)
+        function autoCorrelate(buf, sampleRate) {
+            let SIZE = buf.length;
+            let rms = 0;
+            for (let i = 0; i < SIZE; i++) {
+                let val = buf[i];
+                rms += val * val;
+            }
+            rms = Math.sqrt(rms / SIZE);
+            if (rms < 0.01) return -1; // Sinal muito fraco (silêncio)
+
+            let r1 = 0, r2 = SIZE - 1, thres = 0.2;
+            for (let i = 0; i < SIZE / 2; i++)
+                if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+            for (let i = 1; i < SIZE / 2; i++)
+                if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+
+            buf = buf.slice(r1, r2);
+            SIZE = buf.length;
+
+            let c = new Array(SIZE).fill(0);
+            for (let i = 0; i < SIZE; i++)
+                for (let j = 0; j < SIZE - i; j++)
+                    c[i] = c[i] + buf[j] * buf[j + i];
+
+            let d = 0; while (c[d] > c[d + 1]) d++;
+            let maxval = -1, maxpos = -1;
+            for (let i = d; i < SIZE; i++) {
+                if (c[i] > maxval) {
+                    maxval = c[i];
+                    maxpos = i;
+                }
+            }
+            let T0 = maxpos;
+            let x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
+            let a = (x1 + x3 - 2 * x2) / 2;
+            let b = (x3 - x1) / 2;
+            if (a) T0 = T0 - b / (2 * a);
+            
+            return sampleRate / T0;
+        }
+
+        function noteFromPitch(frequency) {
+            const noteNum = 12 * (Math.log(frequency / 440) / Math.log(2));
+            return Math.round(noteNum) + 69;
+        }
+
+        function frequencyFromNoteNumber(note) {
+            return 440 * Math.pow(2, (note - 69) / 12);
+        }
+
+        function centsOffFromPitch(frequency, note) {
+            return Math.floor(1200 * Math.log(frequency / frequencyFromNoteNumber(note)) / Math.log(2));
+        }
+
+        function updatePitch() {
+            if (!isDetectingPitch) return;
+            
+            analyserAfinador.getFloatTimeDomainData(bufAfinador);
+            const ac = autoCorrelate(bufAfinador, audioCtxAfinador.sampleRate);
+            
+            const notaDisplay = document.getElementById('afinador-nota');
+            const hzDisplay = document.getElementById('afinador-hz');
+            const ponteiro = document.getElementById('afinador-ponteiro');
+            const pulse = document.getElementById('afinador-pulse');
+
+            if (ac == -1) {
+                // Silêncio
+                notaDisplay.classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500');
+                notaDisplay.classList.add('text-slate-800');
+                pulse.style.opacity = '0';
+                pulse.style.transform = 'scale(1)';
+            } else {
+                const pitch = ac;
+                const note = noteFromPitch(pitch);
+                const sym = notasAfinador[note % 12];
+                const oitava = Math.floor(note / 12) - 1;
+                const detune = centsOffFromPitch(pitch, note);
+                
+                // Formatar texto (nome da nota e número da oitava)
+                notaDisplay.innerHTML = `${sym}<span class="text-3xl font-bold text-slate-400 absolute" style="top: 0; right: -25px;">${oitava}</span>`;
+                hzDisplay.textContent = pitch.toFixed(1);
+                
+                // Mapear detune (-50 a +50) para a barra visual (5% a 95%)
+                let posPercent = 50 + (detune);
+                if (posPercent < 5) posPercent = 5;
+                if (posPercent > 95) posPercent = 95;
+                
+                ponteiro.style.left = `${posPercent}%`;
+
+                // Efeito visual circular baseado no volume da voz
+                let volumeMax = 0;
+                for(let i=0; i<bufAfinador.length; i++) {
+                    if(Math.abs(bufAfinador[i]) > volumeMax) volumeMax = Math.abs(bufAfinador[i]);
+                }
+                pulse.style.opacity = '0.5';
+                pulse.style.transform = `scale(${1 + (volumeMax * 2)})`;
+
+                // Alterar cores baseadas na precisão da afinação/canto
+                notaDisplay.classList.remove('text-slate-800', 'text-emerald-500', 'text-rose-500', 'text-amber-500');
+                
+                if (Math.abs(detune) < 5) {
+                    // Canto Perfeito / Corda Afinada!
+                    notaDisplay.classList.add('text-emerald-500');
+                    ponteiro.style.backgroundColor = '#10b981'; 
+                    pulse.className = 'absolute w-32 h-32 bg-emerald-100 rounded-full transition-all duration-75';
+                } else if (Math.abs(detune) < 20) {
+                    // Quase lá
+                    notaDisplay.classList.add('text-amber-500');
+                    ponteiro.style.backgroundColor = '#f59e0b'; 
+                    pulse.className = 'absolute w-32 h-32 bg-amber-100 rounded-full transition-all duration-75';
+                } else {
+                    // Fora do tom exato
+                    notaDisplay.classList.add('text-rose-500');
+                    ponteiro.style.backgroundColor = '#f43f5e'; 
+                    pulse.className = 'absolute w-32 h-32 bg-rose-100 rounded-full transition-all duration-75';
+                }
+            }
+
+            pitchDetectionFrameId = requestAnimationFrame(updatePitch);
+        }
     </script>
 </body>
 </html>
