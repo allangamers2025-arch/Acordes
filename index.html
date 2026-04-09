@@ -1757,41 +1757,21 @@
             </button>
         </div>
 
-        <!-- Tela de Descobrir Tom da Voz -->
-        <div id="tom-voz-screen" class="hidden text-center fade-in w-full">
-            <h1 class="text-3xl font-extrabold text-fuchsia-600 mb-2 text-center">Descobrir Tom da Voz</h1>
-            <p class="text-slate-500 mb-8 text-center text-lg">Cante a nota ou melodia que lhe seja mais confortável durante 10 segundos.</p>
-            
-            <div class="bg-white rounded-2xl p-8 mb-8 border border-slate-200 shadow-sm max-w-md mx-auto relative overflow-hidden">
-                <div id="voz-status" class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest h-5">
-                    Pronto para começar
+        <!-- NOVO: Modal de Permissão de Microfone -->
+        <div id="mic-permission-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 fade-in">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center transform transition-all">
+                <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                    🎙️
                 </div>
-                
-                <div class="flex justify-center items-center h-40 mb-6 relative">
-                    <div id="voz-pulse" class="absolute w-40 h-40 bg-fuchsia-100 rounded-full opacity-0 transition-all duration-75"></div>
-                    <div id="voz-timer-display" class="text-7xl font-black text-slate-800 z-10 transition-colors duration-200 tabular-nums">
-                        10s
-                    </div>
-                </div>
-                
-                <div id="voz-resultado-container" class="hidden mb-6 bg-fuchsia-50 p-6 rounded-xl border border-fuchsia-200">
-                    <p class="text-sm font-bold text-fuchsia-700 uppercase tracking-widest mb-1">O seu tom principal é:</p>
-                    <div id="voz-nota-final" class="text-5xl font-black text-fuchsia-600 leading-tight">G</div>
-                </div>
-
-                <div class="space-y-3">
-                    <button id="btn-iniciar-voz" onclick="iniciarGravacaoVoz()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2">
-                        <span>▶️</span> Iniciar Gravação (10s)
-                    </button>
-                    <button id="btn-refazer-voz" onclick="prepararNovaGravacaoVoz()" class="hidden w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition duration-200 shadow-sm border border-slate-200 flex items-center justify-center gap-2">
-                        <span>🔄</span> Analisar Novamente
-                    </button>
-                </div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">Acesso ao Microfone</h2>
+                <p class="text-slate-600 mb-6 text-sm leading-relaxed">
+                    Para usar esta ferramenta, precisamos ouvir o seu violão ou a sua voz.<br><br>
+                    <strong>Como resolver:</strong> Clique no ícone de cadeado (🔒) na barra de endereço do navegador, permita o uso do <strong>Microfone</strong> e tente novamente.
+                </p>
+                <button onclick="fecharModalMicrofone()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-6 rounded-xl transition duration-200 shadow-md hover:shadow-lg">
+                    Entendi
+                </button>
             </div>
-
-            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
-                &larr; Voltar ao Menu
-            </button>
         </div>
 
     </div>
@@ -1987,6 +1967,15 @@
         const scoreText = document.getElementById('score-text');
         const feedbackMessage = document.getElementById('feedback-message');
         const beatIndicatorsContainer = document.getElementById('beat-indicators');
+
+        // Controles do Modal de Microfone
+        function mostrarModalMicrofone() {
+            document.getElementById('mic-permission-modal').classList.remove('hidden');
+        }
+
+        function fecharModalMicrofone() {
+            document.getElementById('mic-permission-modal').classList.add('hidden');
+        }
 
         function formatarTempoTreino(segundos) {
             const m = Math.floor(segundos / 60).toString().padStart(2, '0');
@@ -3202,8 +3191,8 @@
                 
                 updatePitch();
             } catch (err) {
-                alert("Erro ao acessar o microfone. Verifique as permissões do seu navegador (ícone de cadeado na barra de endereço).");
-                console.error(err);
+                console.error("Erro ao acessar o microfone:", err);
+                mostrarModalMicrofone();
             }
         }
 
@@ -3223,14 +3212,14 @@
             const btn = document.getElementById('btn-toggle-afinador');
             btn.classList.replace('bg-slate-700', 'bg-rose-500');
             btn.classList.replace('hover:bg-slate-800', 'hover:bg-rose-600');
-            btn.innerHTML = '<span>🎤</span> Ligar Microfone';
+            btn.innerHTML = '<span>🎙️</span> Ligar Afinador';
             
             document.getElementById('afinador-status').textContent = 'Microfone Desligado';
             document.getElementById('afinador-status').classList.replace('text-emerald-500', 'text-slate-400');
             document.getElementById('afinador-status').classList.remove('animate-pulse');
             
             document.getElementById('afinador-nota').innerHTML = '--';
-            document.getElementById('afinador-nota').classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500');
+            document.getElementById('afinador-nota').classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500', 'text-slate-300');
             document.getElementById('afinador-nota').classList.add('text-slate-800');
             document.getElementById('afinador-hz').textContent = '0.0';
             document.getElementById('afinador-ponteiro').style.left = '50%';
@@ -3312,10 +3301,19 @@
             ];
 
             if (ac == -1) {
-                // Silêncio
-                notaDisplay.innerHTML = '--';
-                notaDisplay.classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500');
-                notaDisplay.classList.add('text-slate-800');
+                // Silêncio: Não apaga o innerHTML! Mantém a última nota, mas deixa-a cinza.
+                notaDisplay.classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500', 'text-slate-800');
+                
+                // Só adiciona a cor cinza se já tiver alguma nota lá, se não fica normal
+                if (notaDisplay.innerHTML !== '--') {
+                    notaDisplay.classList.add('text-slate-300');
+                } else {
+                    notaDisplay.classList.add('text-slate-800');
+                }
+
+                // O ponteiro regressa ao centro e desliga as cores de atividade
+                ponteiro.style.left = '50%';
+                ponteiro.style.backgroundColor = '#cbd5e1'; 
                 pulse.style.opacity = '0';
                 pulse.style.transform = 'scale(1)';
             } else {
@@ -3344,7 +3342,7 @@
                 pulse.style.transform = `scale(${1 + (volumeMax * 2)})`;
 
                 // Alterar cores baseadas na precisão da afinação
-                notaDisplay.classList.remove('text-slate-800', 'text-emerald-500', 'text-rose-500', 'text-amber-500');
+                notaDisplay.classList.remove('text-slate-800', 'text-slate-300', 'text-emerald-500', 'text-rose-500', 'text-amber-500');
                 
                 if (Math.abs(detune) < 5) {
                     // Afinação Perfeita
@@ -3431,8 +3429,8 @@
                 }, 1000);
                 
             } catch (err) {
-                alert("Erro ao acessar o microfone. Verifique as permissões de acesso do navegador.");
-                console.error(err);
+                console.error("Erro ao acessar o microfone:", err);
+                mostrarModalMicrofone();
             }
         }
 
