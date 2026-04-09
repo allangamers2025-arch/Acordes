@@ -3305,55 +3305,27 @@
             const ponteiro = document.getElementById('afinador-ponteiro');
             const pulse = document.getElementById('afinador-pulse');
 
-            // As 6 cordas padrão do violão (E standard) com as suas frequências exatas em Hz
-            const cordasViolao = [
-                { nota: 'E', cordaNum: '6ª', freq: 82.41 },
-                { nota: 'A', cordaNum: '5ª', freq: 110.00 },
-                { nota: 'D', cordaNum: '4ª', freq: 146.83 },
-                { nota: 'G', cordaNum: '3ª', freq: 196.00 },
-                { nota: 'B', cordaNum: '2ª', freq: 246.94 },
-                { nota: 'E', cordaNum: '1ª', freq: 329.63 }
+            // Formatação Exata Solicitada para Todas as Notas Cromáticas
+            const notasFormatoPT = [
+                "Dó (C)", "Dó#", "Ré (D)", "Ré#", "Mi (E)", "Fá (F)", 
+                "Fá#", "Sol (G)", "Sol#", "Lá (A)", "Lá#", "Si (B)"
             ];
 
             if (ac == -1) {
                 // Silêncio
+                notaDisplay.innerHTML = '--';
                 notaDisplay.classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500');
                 notaDisplay.classList.add('text-slate-800');
                 pulse.style.opacity = '0';
                 pulse.style.transform = 'scale(1)';
             } else {
                 const pitch = ac;
+                const note = noteFromPitch(pitch);
+                const formatada = notasFormatoPT[note % 12];
+                const detune = centsOffFromPitch(pitch, note);
                 
-                // Encontrar a corda do violão mais próxima desta frequência
-                let closestCorda = cordasViolao[0];
-                let minCentsDiff = Infinity;
-
-                for (let c of cordasViolao) {
-                    let cents = 1200 * Math.log2(pitch / c.freq);
-                    if (Math.abs(cents) < Math.abs(minCentsDiff)) {
-                        minCentsDiff = cents;
-                        closestCorda = c;
-                    }
-                }
-
-                // Filtro rigoroso: Se o som estiver muito longe de qualquer corda do violão (ex: voz, assobios agudos, barulhos), ele ignora.
-                // 400 cents = 4 semitons de tolerância (caso a corda esteja muuuito desafinada, ele ainda tenta ajudar)
-                if (Math.abs(minCentsDiff) > 400) {
-                    notaDisplay.innerHTML = '--';
-                    notaDisplay.classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500');
-                    notaDisplay.classList.add('text-slate-800');
-                    hzDisplay.textContent = pitch.toFixed(1) + ' Hz (Não é violão)';
-                    ponteiro.style.left = '50%';
-                    ponteiro.style.backgroundColor = '#1e293b';
-                    pulse.style.opacity = '0';
-                    pitchDetectionFrameId = requestAnimationFrame(updatePitch);
-                    return;
-                }
-
-                const detune = Math.floor(minCentsDiff);
-                
-                // Formatar texto: Mostra o nome da nota e indica qual é a corda do violão (ex: "6ª")
-                notaDisplay.innerHTML = `${closestCorda.nota}<span class="text-2xl font-bold text-slate-400 absolute" style="top: 0; right: -40px;">${closestCorda.cordaNum}</span>`;
+                // Atualizar os Displays
+                notaDisplay.innerHTML = formatada;
                 hzDisplay.textContent = pitch.toFixed(1);
                 
                 // Mapear detune para a barra visual (-50 a +50 vira 5% a 95%).
