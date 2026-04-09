@@ -169,9 +169,14 @@
                     <span>🎵</span> Estudar Campos Harmônicos
                 </button>
 
-                <!-- NOVO: Botão Afinador e Tom de Voz -->
-                <button onclick="mostrarAfinadorVoz()" class="w-full bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 text-rose-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
-                    <span>🎤</span> Descobrir Tom da Voz (Afinador)
+                <!-- Botão Afinador de Violão -->
+                <button onclick="mostrarAfinadorViolao()" class="w-full bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 text-rose-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
+                    <span>🎸</span> Afinador de Violão
+                </button>
+
+                <!-- NOVO: Botão Tom da Voz -->
+                <button onclick="mostrarTomVoz()" class="w-full bg-fuchsia-50 hover:bg-fuchsia-100 border-2 border-fuchsia-200 text-fuchsia-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
+                    <span>🎤</span> Descobrir Tom da Voz (10s)
                 </button>
 
                 <!-- Botão Metrônomo -->
@@ -1712,10 +1717,10 @@
             </button>
         </div>
 
-        <!-- Tela do Afinador / Tom da Voz -->
+        <!-- Tela do Afinador -->
         <div id="afinador-screen" class="hidden text-center fade-in w-full">
-            <h1 class="text-3xl font-extrabold text-rose-600 mb-2 text-center">Tom da Voz & Afinador</h1>
-            <p class="text-slate-500 mb-8 text-center text-lg">Cante, fale ou toque uma corda do violão para descobrir a nota exata.</p>
+            <h1 class="text-3xl font-extrabold text-rose-600 mb-2 text-center">Afinador de Violão</h1>
+            <p class="text-slate-500 mb-8 text-center text-lg">Toque uma corda solta do violão para afinar com precisão.</p>
             
             <div class="bg-white rounded-2xl p-8 mb-8 border border-slate-200 shadow-sm max-w-md mx-auto relative overflow-hidden">
                 <div id="afinador-status" class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">
@@ -1743,8 +1748,45 @@
                 </div>
                 
                 <button id="btn-toggle-afinador" onclick="toggleAfinador()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2">
-                    <span>🎤</span> Ligar Microfone
+                    <span>🎙️</span> Ligar Afinador
                 </button>
+            </div>
+
+            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar ao Menu
+            </button>
+        </div>
+
+        <!-- Tela de Descobrir Tom da Voz -->
+        <div id="tom-voz-screen" class="hidden text-center fade-in w-full">
+            <h1 class="text-3xl font-extrabold text-fuchsia-600 mb-2 text-center">Descobrir Tom da Voz</h1>
+            <p class="text-slate-500 mb-8 text-center text-lg">Cante a nota ou melodia que lhe seja mais confortável durante 10 segundos.</p>
+            
+            <div class="bg-white rounded-2xl p-8 mb-8 border border-slate-200 shadow-sm max-w-md mx-auto relative overflow-hidden">
+                <div id="voz-status" class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest h-5">
+                    Pronto para começar
+                </div>
+                
+                <div class="flex justify-center items-center h-40 mb-6 relative">
+                    <div id="voz-pulse" class="absolute w-40 h-40 bg-fuchsia-100 rounded-full opacity-0 transition-all duration-75"></div>
+                    <div id="voz-timer-display" class="text-7xl font-black text-slate-800 z-10 transition-colors duration-200 tabular-nums">
+                        10s
+                    </div>
+                </div>
+                
+                <div id="voz-resultado-container" class="hidden mb-6 bg-fuchsia-50 p-6 rounded-xl border border-fuchsia-200">
+                    <p class="text-sm font-bold text-fuchsia-700 uppercase tracking-widest mb-1">O seu tom principal é:</p>
+                    <div id="voz-nota-final" class="text-5xl font-black text-fuchsia-600 leading-tight">G</div>
+                </div>
+
+                <div class="space-y-3">
+                    <button id="btn-iniciar-voz" onclick="iniciarGravacaoVoz()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2">
+                        <span>▶️</span> Iniciar Gravação (10s)
+                    </button>
+                    <button id="btn-refazer-voz" onclick="prepararNovaGravacaoVoz()" class="hidden w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition duration-200 shadow-sm border border-slate-200 flex items-center justify-center gap-2">
+                        <span>🔄</span> Analisar Novamente
+                    </button>
+                </div>
             </div>
 
             <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
@@ -1934,7 +1976,8 @@
         const aulaScreen = document.getElementById('aula-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
-        const afinadorScreen = document.getElementById('afinador-screen'); // NOVO
+        const afinadorScreen = document.getElementById('afinador-screen');
+        const tomVozScreen = document.getElementById('tom-voz-screen'); // NOVO
         
         const chordDiagram = document.getElementById('chord-diagram');
         const optionsContainer = document.getElementById('options-container');
@@ -2160,7 +2203,8 @@
             teoriaExplicacaoScreen.classList.add('hidden');
             aulaScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
-            if (afinadorScreen) afinadorScreen.classList.add('hidden'); // NOVO
+            if (afinadorScreen) afinadorScreen.classList.add('hidden'); 
+            if (tomVozScreen) tomVozScreen.classList.add('hidden'); // NOVO
             startScreen.classList.remove('hidden');
             restaurarTamanhoCartao();
             
@@ -2168,9 +2212,14 @@
                 toggleMetronomo();
             }
 
-            // NOVO: Desligar o afinador se estiver rodando para não manter o microfone ligado
+            // Desligar o afinador se estiver rodando
             if (typeof pararDeteccaoVoz === 'function') {
                 pararDeteccaoVoz();
+            }
+            
+            // Desligar o analisador de voz de 10s se estiver rodando
+            if (typeof pararGravacaoVozForcado === 'function') {
+                pararGravacaoVozForcado();
             }
         }
         
@@ -3107,7 +3156,7 @@
             }, 100);
         }
 
-        // --- LÓGICA DO AFINADOR / TOM DA VOZ ---
+        // --- LÓGICA DO AFINADOR (ALTERADO PARA AFINADOR DE VIOLÃO) ---
         let audioCtxAfinador = null;
         let analyserAfinador = null;
         let streamAfinador = null;
@@ -3116,7 +3165,7 @@
         const bufAfinador = new Float32Array(2048);
         const notasAfinador = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-        function mostrarAfinadorVoz() {
+        function mostrarAfinadorViolao() {
             startScreen.classList.add('hidden');
             document.getElementById('afinador-screen').classList.remove('hidden');
         }
@@ -3310,6 +3359,161 @@
             }
 
             pitchDetectionFrameId = requestAnimationFrame(updatePitch);
+        }
+
+        // --- LÓGICA DO TOM DA VOZ (10 SEGUNDOS) ---
+        let audioCtxVoz = null;
+        let analyserVoz = null;
+        let streamVoz = null;
+        let vozFrameId = null;
+        let timerVozID = null;
+        let isGravandoVoz = false;
+        let tempoVozRestante = 10;
+        let notasColetadas = {};
+        const bufVoz = new Float32Array(2048);
+
+        function mostrarTomVoz() {
+            startScreen.classList.add('hidden');
+            document.getElementById('tom-voz-screen').classList.remove('hidden');
+            prepararNovaGravacaoVoz();
+        }
+
+        function prepararNovaGravacaoVoz() {
+            pararGravacaoVozForcado(); // Limpa qualquer coisa ativa
+            document.getElementById('voz-resultado-container').classList.add('hidden');
+            document.getElementById('btn-iniciar-voz').classList.remove('hidden');
+            document.getElementById('btn-iniciar-voz').innerHTML = '<span>▶️</span> Iniciar Gravação (10s)';
+            document.getElementById('btn-iniciar-voz').disabled = false;
+            document.getElementById('btn-iniciar-voz').classList.replace('bg-slate-300', 'bg-fuchsia-500');
+            document.getElementById('btn-refazer-voz').classList.add('hidden');
+            document.getElementById('voz-timer-display').textContent = '10s';
+            document.getElementById('voz-status').textContent = 'Pronto para começar';
+            document.getElementById('voz-pulse').style.opacity = '0';
+        }
+
+        async function iniciarGravacaoVoz() {
+            try {
+                streamVoz = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioCtxVoz = new (window.AudioContext || window.webkitAudioContext)();
+                analyserVoz = audioCtxVoz.createAnalyser();
+                analyserVoz.fftSize = 2048;
+                
+                const source = audioCtxVoz.createMediaStreamSource(streamVoz);
+                source.connect(analyserVoz);
+                
+                isGravandoVoz = true;
+                notasColetadas = {};
+                tempoVozRestante = 10;
+                
+                const btnIniciar = document.getElementById('btn-iniciar-voz');
+                btnIniciar.innerHTML = '<span>⏳</span> Analisando Áudio...';
+                btnIniciar.disabled = true;
+                btnIniciar.classList.replace('bg-fuchsia-500', 'bg-slate-300');
+                
+                document.getElementById('voz-status').textContent = 'Cante agora! Processando...';
+                document.getElementById('voz-status').classList.add('text-fuchsia-500', 'animate-pulse');
+                
+                analisarFrequenciaVoz();
+                
+                timerVozID = setInterval(() => {
+                    tempoVozRestante--;
+                    document.getElementById('voz-timer-display').textContent = tempoVozRestante + 's';
+                    
+                    if (tempoVozRestante <= 0) {
+                        finalizarGravacaoVoz();
+                    }
+                }, 1000);
+                
+            } catch (err) {
+                alert("Erro ao acessar o microfone. Verifique as permissões de acesso do navegador.");
+                console.error(err);
+            }
+        }
+
+        function analisarFrequenciaVoz() {
+            if (!isGravandoVoz) return;
+            
+            analyserVoz.getFloatTimeDomainData(bufVoz);
+            // Reutiliza a função de matemática autoCorrelate já existente no afinador
+            const ac = autoCorrelate(bufVoz, audioCtxVoz.sampleRate); 
+            
+            const pulse = document.getElementById('voz-pulse');
+            
+            if (ac !== -1) {
+                const note = noteFromPitch(ac);
+                const sym = notasAfinador[note % 12];
+                notasColetadas[sym] = (notasColetadas[sym] || 0) + 1; // Guarda a nota detetada no contador
+                
+                // Efeito visual que reage ao volume da voz
+                let volumeMax = 0;
+                for(let i=0; i<bufVoz.length; i++) {
+                    if(Math.abs(bufVoz[i]) > volumeMax) volumeMax = Math.abs(bufVoz[i]);
+                }
+                pulse.style.opacity = '0.6';
+                pulse.style.transform = `scale(${1 + (volumeMax * 3)})`;
+            } else {
+                pulse.style.opacity = '0.1';
+                pulse.style.transform = 'scale(1)';
+            }
+            
+            vozFrameId = requestAnimationFrame(analisarFrequenciaVoz);
+        }
+
+        function finalizarGravacaoVoz() {
+            pararGravacaoVozForcado(); // Para os streams e o loop
+            
+            document.getElementById('voz-status').textContent = 'Análise Concluída!';
+            document.getElementById('voz-status').classList.remove('text-fuchsia-500', 'animate-pulse');
+            
+            document.getElementById('btn-iniciar-voz').classList.add('hidden');
+            document.getElementById('btn-refazer-voz').classList.remove('hidden');
+            
+            // Lógica para descobrir a nota que foi mais vezes cantada nos 10 segundos
+            let maxNota = '--';
+            let maxContagem = 0;
+            let totalNotasDetectadas = 0;
+            
+            for (const [nota, contagem] of Object.entries(notasColetadas)) {
+                totalNotasDetectadas += contagem;
+                if (contagem > maxContagem) {
+                    maxContagem = contagem;
+                    maxNota = nota;
+                }
+            }
+            
+            const displayFinal = document.getElementById('voz-nota-final');
+            
+            // Mínimo de qualidade: Precisa captar áudio suficiente para dar um resultado válido
+            if (totalNotasDetectadas > 30 && maxContagem > 15) {
+                const traduz = { 'C':'Dó (C)', 'C#':'Dó# (C#)', 'D':'Ré (D)', 'D#':'Ré# (D#)', 'E':'Mi (E)', 'F':'Fá (F)', 'F#':'Fá# (F#)', 'G':'Sol (G)', 'G#':'Sol# (G#)', 'A':'Lá (A)', 'A#':'Lá# (A#)', 'B':'Si (B)' };
+                displayFinal.innerHTML = traduz[maxNota];
+                displayFinal.className = 'text-4xl sm:text-5xl font-black text-fuchsia-600 mt-2';
+            } else {
+                displayFinal.innerHTML = "Inconclusivo<br><span class='text-base font-normal text-slate-500 mt-2 block'>Por favor, cante mais alto e contínuo!</span>";
+                displayFinal.className = 'text-2xl font-black text-slate-400 mt-2';
+            }
+            
+            document.getElementById('voz-resultado-container').classList.remove('hidden');
+        }
+
+        function pararGravacaoVozForcado() {
+            isGravandoVoz = false;
+            clearInterval(timerVozID);
+            if (vozFrameId) cancelAnimationFrame(vozFrameId);
+            
+            if (streamVoz) {
+                streamVoz.getTracks().forEach(track => track.stop());
+                streamVoz = null;
+            }
+            if (audioCtxVoz && audioCtxVoz.state !== 'closed') {
+                audioCtxVoz.close();
+                audioCtxVoz = null;
+            }
+            const pulse = document.getElementById('voz-pulse');
+            if(pulse) {
+                pulse.style.opacity = '0';
+                pulse.style.transform = 'scale(1)';
+            }
         }
     </script>
 </body>
