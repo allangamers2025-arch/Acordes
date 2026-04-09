@@ -1729,7 +1729,7 @@
                 
                 <div class="flex justify-center items-center h-48 mb-4 relative">
                     <div id="afinador-pulse" class="absolute w-32 h-32 bg-rose-100 rounded-full opacity-0 transition-all duration-75"></div>
-                    <div id="afinador-nota" class="text-8xl font-black text-slate-800 z-10 transition-colors duration-200 relative flex items-center justify-center">
+                    <div id="afinador-nota" class="text-5xl sm:text-6xl font-black text-slate-800 w-full z-10 transition-colors duration-200 relative flex items-center justify-center">
                         --
                     </div>
                 </div>
@@ -3151,6 +3151,7 @@
         let streamAfinador = null;
         let pitchDetectionFrameId = null;
         let isDetectingPitch = false;
+        let ultimaNotaAfinador = '--'; // GUARDA A ÚLTIMA NOTA TOCADA
         const bufAfinador = new Float32Array(2048);
         const notasAfinador = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -3199,6 +3200,7 @@
         function pararDeteccaoVoz() {
             if (!isDetectingPitch) return;
             isDetectingPitch = false;
+            ultimaNotaAfinador = '--'; // Reseta a nota ao desligar
             
             if (pitchDetectionFrameId) cancelAnimationFrame(pitchDetectionFrameId);
             
@@ -3218,9 +3220,10 @@
             document.getElementById('afinador-status').classList.replace('text-emerald-500', 'text-slate-400');
             document.getElementById('afinador-status').classList.remove('animate-pulse');
             
-            document.getElementById('afinador-nota').innerHTML = '--';
-            document.getElementById('afinador-nota').classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500', 'text-slate-300');
-            document.getElementById('afinador-nota').classList.add('text-slate-800');
+            const notaDisplay = document.getElementById('afinador-nota');
+            notaDisplay.innerHTML = '--';
+            notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-800 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
+            
             document.getElementById('afinador-hz').textContent = '0.0';
             document.getElementById('afinador-ponteiro').style.left = '50%';
             document.getElementById('afinador-ponteiro').style.backgroundColor = '#1e293b'; 
@@ -3237,7 +3240,8 @@
                 rms += val * val;
             }
             rms = Math.sqrt(rms / SIZE);
-            if (rms < 0.01) return -1; // Sinal muito fraco (silêncio)
+            // Threshold aumentado (0.015) para que o ruído de fundo não esconda a última nota
+            if (rms < 0.015) return -1; 
 
             let r1 = 0, r2 = SIZE - 1, thres = 0.2;
             for (let i = 0; i < SIZE / 2; i++)
@@ -3301,17 +3305,16 @@
             ];
 
             if (ac == -1) {
-                // Silêncio: Não apaga o innerHTML! Mantém a última nota, mas deixa-a cinza.
-                notaDisplay.classList.remove('text-emerald-500', 'text-rose-500', 'text-amber-500', 'text-slate-800');
-                
-                // Só adiciona a cor cinza se já tiver alguma nota lá, se não fica normal
-                if (notaDisplay.innerHTML !== '--') {
-                    notaDisplay.classList.add('text-slate-300');
+                // Silêncio: Mantém a última nota visível, mas pintada de cinza
+                if (ultimaNotaAfinador !== '--') {
+                    notaDisplay.innerHTML = ultimaNotaAfinador;
+                    notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-300 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
                 } else {
-                    notaDisplay.classList.add('text-slate-800');
+                    notaDisplay.innerHTML = '--';
+                    notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-800 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
                 }
 
-                // O ponteiro regressa ao centro e desliga as cores de atividade
+                // O ponteiro regressa ao centro sem cor
                 ponteiro.style.left = '50%';
                 ponteiro.style.backgroundColor = '#cbd5e1'; 
                 pulse.style.opacity = '0';
@@ -3321,6 +3324,9 @@
                 const note = noteFromPitch(pitch);
                 const formatada = notasFormatoPT[note % 12];
                 const detune = centsOffFromPitch(pitch, note);
+                
+                // Grava a última nota detetada!
+                ultimaNotaAfinador = formatada;
                 
                 // Atualizar os Displays
                 notaDisplay.innerHTML = formatada;
@@ -3341,8 +3347,8 @@
                 pulse.style.opacity = '0.5';
                 pulse.style.transform = `scale(${1 + (volumeMax * 2)})`;
 
-                // Alterar cores baseadas na precisão da afinação
-                notaDisplay.classList.remove('text-slate-800', 'text-slate-300', 'text-emerald-500', 'text-rose-500', 'text-amber-500');
+                // Reset das classes da nota para aplicar a cor certa
+                notaDisplay.className = 'text-5xl sm:text-6xl font-black w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
                 
                 if (Math.abs(detune) < 5) {
                     // Afinação Perfeita
