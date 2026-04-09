@@ -176,7 +176,7 @@
 
                 <!-- NOVO: Botão Tom da Voz -->
                 <button onclick="mostrarTomVoz()" class="w-full bg-fuchsia-50 hover:bg-fuchsia-100 border-2 border-fuchsia-200 text-fuchsia-700 font-bold py-4 px-6 rounded-xl transition duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2">
-                    <span>🎤</span> Descobrir Tom da Voz (10s)
+                    <span>🎤</span> Descobrir Tom da Voz (Livre)
                 </button>
 
                 <!-- Botão Metrônomo -->
@@ -1760,7 +1760,7 @@
         <!-- Tela de Descobrir Tom da Voz -->
         <div id="tom-voz-screen" class="hidden text-center fade-in w-full">
             <h1 class="text-3xl font-extrabold text-fuchsia-600 mb-2 text-center">Descobrir Tom da Voz</h1>
-            <p class="text-slate-500 mb-8 text-center text-lg">Cante a nota ou melodia que lhe seja mais confortável durante 10 segundos.</p>
+            <p class="text-slate-500 mb-8 text-center text-lg">Cante a nota ou melodia que lhe seja mais confortável pelo tempo que quiser.</p>
             
             <div class="bg-white rounded-2xl p-8 mb-8 border border-slate-200 shadow-sm max-w-md mx-auto relative overflow-hidden">
                 <div id="voz-status" class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest h-5">
@@ -1770,7 +1770,7 @@
                 <div class="flex justify-center items-center h-40 mb-6 relative">
                     <div id="voz-pulse" class="absolute w-40 h-40 bg-fuchsia-100 rounded-full opacity-0 transition-all duration-75"></div>
                     <div id="voz-timer-display" class="text-7xl font-black text-slate-800 z-10 transition-colors duration-200 tabular-nums">
-                        10s
+                        00:00
                     </div>
                 </div>
                 
@@ -1781,10 +1781,13 @@
 
                 <div class="space-y-3">
                     <button id="btn-iniciar-voz" onclick="iniciarGravacaoVoz()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2">
-                        <span>▶️</span> Iniciar Gravação (10s)
+                        <span>▶️</span> Iniciar Gravação
+                    </button>
+                    <button id="btn-analisar-voz" onclick="finalizarGravacaoVoz()" class="hidden w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2">
+                        <span>🔍</span> Analisar Áudio
                     </button>
                     <button id="btn-refazer-voz" onclick="prepararNovaGravacaoVoz()" class="hidden w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition duration-200 shadow-sm border border-slate-200 flex items-center justify-center gap-2">
-                        <span>🔄</span> Analisar Novamente
+                        <span>🔄</span> Nova Gravação
                     </button>
                 </div>
             </div>
@@ -3317,15 +3320,14 @@
 
             pitchDetectionFrameId = requestAnimationFrame(updatePitch);
         }
-
-        // --- LÓGICA DO TOM DA VOZ (10 SEGUNDOS) ---
+        // --- LÓGICA DO TOM DA VOZ (TEMPO LIVRE) ---
         let audioCtxVoz = null;
         let analyserVoz = null;
         let streamVoz = null;
         let vozFrameId = null;
         let timerVozID = null;
         let isGravandoVoz = false;
-        let tempoVozRestante = 10;
+        let tempoVozDecorrido = 0;
         let notasColetadas = {};
         const bufVoz = new Float32Array(2048);
         const notasAfinador = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -3339,13 +3341,17 @@
         function prepararNovaGravacaoVoz() {
             pararGravacaoVozForcado();
             document.getElementById('voz-resultado-container').classList.add('hidden');
+            
             document.getElementById('btn-iniciar-voz').classList.remove('hidden');
-            document.getElementById('btn-iniciar-voz').innerHTML = '<span>▶️</span> Iniciar Gravação (10s)';
             document.getElementById('btn-iniciar-voz').disabled = false;
-            document.getElementById('btn-iniciar-voz').classList.replace('bg-slate-300', 'bg-fuchsia-500');
+            
+            document.getElementById('btn-analisar-voz').classList.add('hidden');
             document.getElementById('btn-refazer-voz').classList.add('hidden');
-            document.getElementById('voz-timer-display').textContent = '10s';
+            
+            document.getElementById('voz-timer-display').textContent = '00:00';
             document.getElementById('voz-status').textContent = 'Pronto para começar';
+            document.getElementById('voz-status').classList.remove('text-fuchsia-500');
+            document.getElementById('voz-status').classList.add('text-slate-400');
             document.getElementById('voz-pulse').style.opacity = '0';
         }
 
@@ -3366,25 +3372,22 @@
                 
                 isGravandoVoz = true;
                 notasColetadas = {};
-                tempoVozRestante = 10;
+                tempoVozDecorrido = 0;
                 
-                const btnIniciar = document.getElementById('btn-iniciar-voz');
-                btnIniciar.innerHTML = '<span>⏳</span> Analisando Áudio...';
-                btnIniciar.disabled = true;
-                btnIniciar.classList.replace('bg-fuchsia-500', 'bg-slate-300');
+                document.getElementById('btn-iniciar-voz').classList.add('hidden');
+                document.getElementById('btn-analisar-voz').classList.remove('hidden');
                 
-                document.getElementById('voz-status').textContent = 'Cante agora! Processando...';
-                document.getElementById('voz-status').classList.add('text-fuchsia-500', 'animate-pulse');
+                document.getElementById('voz-status').textContent = 'Gravando... Pressione Analisar quando terminar';
+                document.getElementById('voz-status').classList.replace('text-slate-400', 'text-fuchsia-500');
+                document.getElementById('voz-status').classList.add('animate-pulse');
                 
                 analisarFrequenciaVoz();
                 
                 timerVozID = setInterval(() => {
-                    tempoVozRestante--;
-                    document.getElementById('voz-timer-display').textContent = tempoVozRestante + 's';
-                    
-                    if (tempoVozRestante <= 0) {
-                        finalizarGravacaoVoz();
-                    }
+                    tempoVozDecorrido++;
+                    const m = Math.floor(tempoVozDecorrido / 60).toString().padStart(2, '0');
+                    const s = (tempoVozDecorrido % 60).toString().padStart(2, '0');
+                    document.getElementById('voz-timer-display').textContent = `${m}:${s}`;
                 }, 1000);
                 
             } catch (err) {
@@ -3428,8 +3431,9 @@
             
             document.getElementById('voz-status').textContent = 'Análise Concluída!';
             document.getElementById('voz-status').classList.remove('text-fuchsia-500', 'animate-pulse');
+            document.getElementById('voz-status').classList.add('text-slate-400');
             
-            document.getElementById('btn-iniciar-voz').classList.add('hidden');
+            document.getElementById('btn-analisar-voz').classList.add('hidden');
             document.getElementById('btn-refazer-voz').classList.remove('hidden');
             
             let maxNota = '--';
@@ -3446,12 +3450,13 @@
             
             const displayFinal = document.getElementById('voz-nota-final');
             
-            if (totalNotasDetectadas > 30 && maxContagem > 15) {
+            // Tolerância mais baixa porque a pessoa pode cantar por pouco tempo
+            if (totalNotasDetectadas > 15 && maxContagem > 5) {
                 const traduz = { 'C':'Dó (C)', 'C#':'Dó# (C#)', 'D':'Ré (D)', 'D#':'Ré# (D#)', 'E':'Mi (E)', 'F':'Fá (F)', 'F#':'Fá# (F#)', 'G':'Sol (G)', 'G#':'Sol# (G#)', 'A':'Lá (A)', 'A#':'Lá# (A#)', 'B':'Si (B)' };
                 displayFinal.innerHTML = traduz[maxNota] || maxNota;
                 displayFinal.className = 'text-4xl sm:text-5xl font-black text-fuchsia-600 mt-2';
             } else {
-                displayFinal.innerHTML = "Inconclusivo<br><span class='text-base font-normal text-slate-500 mt-2 block'>Por favor, cante mais alto e contínuo!</span>";
+                displayFinal.innerHTML = "Inconclusivo<br><span class='text-base font-normal text-slate-500 mt-2 block'>Por favor, cante mais alto e mais tempo!</span>";
                 displayFinal.className = 'text-2xl font-black text-slate-400 mt-2';
             }
             
