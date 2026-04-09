@@ -1757,7 +1757,44 @@
             </button>
         </div>
 
-        <!-- NOVO: Modal de Permissão de Microfone -->
+        <!-- Tela de Descobrir Tom da Voz -->
+        <div id="tom-voz-screen" class="hidden text-center fade-in w-full">
+            <h1 class="text-3xl font-extrabold text-fuchsia-600 mb-2 text-center">Descobrir Tom da Voz</h1>
+            <p class="text-slate-500 mb-8 text-center text-lg">Cante a nota ou melodia que lhe seja mais confortável durante 10 segundos.</p>
+            
+            <div class="bg-white rounded-2xl p-8 mb-8 border border-slate-200 shadow-sm max-w-md mx-auto relative overflow-hidden">
+                <div id="voz-status" class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest h-5">
+                    Pronto para começar
+                </div>
+                
+                <div class="flex justify-center items-center h-40 mb-6 relative">
+                    <div id="voz-pulse" class="absolute w-40 h-40 bg-fuchsia-100 rounded-full opacity-0 transition-all duration-75"></div>
+                    <div id="voz-timer-display" class="text-7xl font-black text-slate-800 z-10 transition-colors duration-200 tabular-nums">
+                        10s
+                    </div>
+                </div>
+                
+                <div id="voz-resultado-container" class="hidden mb-6 bg-fuchsia-50 p-6 rounded-xl border border-fuchsia-200">
+                    <p class="text-sm font-bold text-fuchsia-700 uppercase tracking-widest mb-1">O seu tom principal é:</p>
+                    <div id="voz-nota-final" class="text-5xl font-black text-fuchsia-600 leading-tight">G</div>
+                </div>
+
+                <div class="space-y-3">
+                    <button id="btn-iniciar-voz" onclick="iniciarGravacaoVoz()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-md flex items-center justify-center gap-2">
+                        <span>▶️</span> Iniciar Gravação (10s)
+                    </button>
+                    <button id="btn-refazer-voz" onclick="prepararNovaGravacaoVoz()" class="hidden w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-xl transition duration-200 shadow-sm border border-slate-200 flex items-center justify-center gap-2">
+                        <span>🔄</span> Analisar Novamente
+                    </button>
+                </div>
+            </div>
+
+            <button onclick="voltarParaInicio()" class="w-full text-slate-500 hover:text-slate-800 font-medium py-3 transition">
+                &larr; Voltar ao Menu
+            </button>
+        </div>
+
+        <!-- Modal de Permissão de Microfone -->
         <div id="mic-permission-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 fade-in">
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center transform transition-all">
                 <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
@@ -1779,7 +1816,6 @@
     <script>
         // 1. Biblioteca Mestre de Acordes (Expandida para o Dicionário)
         const bibliotecaAcordes = {
-            // Maiores
             'C': { acorde: ['x', 3, 2, 0, 1, 0], dedos: [0, 3, 2, 0, 1, 0] },
             'D': { acorde: ['x', 'x', 0, 2, 3, 2], dedos: [0, 0, 0, 1, 3, 2] },
             'E': { acorde: [0, 2, 2, 1, 0, 0], dedos: [0, 2, 3, 1, 0, 0] },
@@ -1788,7 +1824,6 @@
             'A': { acorde: ['x', 0, 2, 2, 2, 0], dedos: [0, 0, 1, 2, 3, 0] },
             'B': { acorde: ['x', 2, 4, 4, 4, 2], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 2, cordaInicial: 1, cordaFinal: 5 } },
             
-            // Menores
             'Cm': { acorde: ['x', 3, 5, 5, 4, 3], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 3, cordaInicial: 1, cordaFinal: 5 } },
             'Dm': { acorde: ['x', 'x', 0, 2, 3, 1], dedos: [0, 0, 0, 2, 3, 1] },
             'Em': { acorde: [0, 2, 2, 0, 0, 0], dedos: [0, 2, 3, 0, 0, 0] },
@@ -1797,21 +1832,18 @@
             'Am': { acorde: ['x', 0, 2, 2, 1, 0], dedos: [0, 0, 2, 3, 1, 0] },
             'Bm': { acorde: ['x', 2, 4, 4, 3, 2], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 2, cordaInicial: 1, cordaFinal: 5 } },
 
-            // Sustenidos Maiores
             'C#': { acorde: ['x', 4, 6, 6, 6, 4], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 4, cordaInicial: 1, cordaFinal: 5 } },
             'D#': { acorde: ['x', 6, 8, 8, 8, 6], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 6, cordaInicial: 1, cordaFinal: 5 } },
             'F#': { acorde: [2, 4, 4, 3, 2, 2], dedos: [1, 3, 4, 2, 1, 1], pestana: { traste: 2, cordaInicial: 0, cordaFinal: 5 } },
             'G#': { acorde: [4, 6, 6, 5, 4, 4], dedos: [1, 3, 4, 2, 1, 1], pestana: { traste: 4, cordaInicial: 0, cordaFinal: 5 } },
             'A#': { acorde: ['x', 1, 3, 3, 3, 1], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 1, cordaInicial: 1, cordaFinal: 5 } },
 
-            // Sustenidos Menores
             'C#m': { acorde: ['x', 4, 6, 6, 5, 4], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 4, cordaInicial: 1, cordaFinal: 5 } },
             'D#m': { acorde: ['x', 6, 8, 8, 7, 6], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 6, cordaInicial: 1, cordaFinal: 5 } },
             'F#m': { acorde: [2, 4, 4, 2, 2, 2], dedos: [1, 3, 4, 1, 1, 1], pestana: { traste: 2, cordaInicial: 0, cordaFinal: 5 } },
             'G#m': { acorde: [4, 6, 6, 4, 4, 4], dedos: [1, 3, 4, 1, 1, 1], pestana: { traste: 4, cordaInicial: 0, cordaFinal: 5 } },
             'A#m': { acorde: ['x', 1, 3, 3, 2, 1], dedos: [0, 1, 3, 4, 2, 1], pestana: { traste: 1, cordaInicial: 1, cordaFinal: 5 } },
 
-            // Maiores com Sétima
             'C7': { acorde: ['x', 3, 2, 3, 1, 0], dedos: [0, 3, 2, 4, 1, 0] },
             'D7': { acorde: ['x', 'x', 0, 2, 1, 2], dedos: [0, 0, 0, 2, 1, 3] },
             'E7': { acorde: [0, 2, 0, 1, 0, 0], dedos: [0, 2, 0, 1, 0, 0] },
@@ -1820,7 +1852,6 @@
             'A7': { acorde: ['x', 0, 2, 0, 2, 0], dedos: [0, 0, 2, 0, 3, 0] },
             'B7': { acorde: ['x', 2, 1, 2, 0, 2], dedos: [0, 2, 1, 3, 0, 4] },
 
-            // Menores com Sétima
             'Cm7': { acorde: ['x', 3, 5, 3, 4, 3], dedos: [0, 1, 3, 1, 2, 1], pestana: { traste: 3, cordaInicial: 1, cordaFinal: 5 } },
             'Dm7': { acorde: ['x', 'x', 0, 2, 1, 1], dedos: [0, 0, 0, 2, 1, 1] },
             'Em7': { acorde: [0, 2, 0, 0, 0, 0], dedos: [0, 2, 0, 0, 0, 0] },
@@ -1829,7 +1860,6 @@
             'Am7': { acorde: ['x', 0, 2, 0, 1, 0], dedos: [0, 0, 2, 0, 1, 0] },
             'Bm7': { acorde: ['x', 2, 4, 2, 3, 2], dedos: [0, 1, 3, 1, 2, 1], pestana: { traste: 2, cordaInicial: 1, cordaFinal: 5 } },
 
-            // Outros (Diminutos, etc) usados nos Campos Harmônicos
             'Bdim': { acorde: ['x', 2, 3, 4, 3, 'x'], dedos: [0, 1, 2, 4, 3, 0] },
             'C#dim': { acorde: ['x', 4, 5, 6, 5, 'x'], dedos: [0, 1, 2, 4, 3, 0] },
             'D#dim': { acorde: ['x', 6, 7, 8, 7, 'x'], dedos: [0, 1, 2, 4, 3, 0] },
@@ -1840,7 +1870,6 @@
             'Bb': { acorde: ['x', 1, 3, 3, 3, 1], dedos: [0, 1, 2, 3, 4, 1], pestana: { traste: 1, cordaInicial: 1, cordaFinal: 5 } }
         };
 
-        // 2. Banco de Dados de Perguntas
         const bancoDePerguntas = [
             { acorde: bibliotecaAcordes['C'].acorde, dedos: bibliotecaAcordes['C'].dedos, opcoes: ["Dó Maior (C)", "Sol Maior (G)", "Lá Menor (Am)", "Fá Maior (F)"], respostaCorretaIndex: 0 },
             { acorde: bibliotecaAcordes['G'].acorde, dedos: bibliotecaAcordes['G'].dedos, opcoes: ["Lá Maior (A)", "Sol Maior (G)", "Dó Maior (C)", "Mi Menor (Em)"], respostaCorretaIndex: 1 },
@@ -1860,7 +1889,6 @@
             { acorde: bibliotecaAcordes['B7'].acorde, dedos: bibliotecaAcordes['B7'].dedos, opcoes: ["Si Menor (Bm)", "Fá Sustenido com Sétima (F#7)", "Mi com Sétima (E7)", "Si com Sétima (B7)"], respostaCorretaIndex: 3 }
         ];
 
-        // Categorias do Dicionário
         const categoriasDicionario = [
             { id: 'maiores', nome: 'Acordes Maiores', sufixo: '', notas: ['C','D','E','F','G','A','B'] },
             { id: 'menores', nome: 'Acordes Menores', sufixo: 'm', notas: ['C','D','E','F','G','A','B'] },
@@ -1870,9 +1898,7 @@
             { id: 'menores_7', nome: 'Acordes Menores Com Sétima', sufixo: 'm7', notas: ['C','D','E','F','G','A','B'] }
         ];
 
-        // Lógica do Braço Interativo
         const notasCromaticas = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-        // Índices das cordas soltas (6 a 1): E (4), A (9), D (2), G (7), B (11), E (4)
         const afinacaoIndex = [4, 9, 2, 7, 11, 4];
         let bracoScore = 0;
         let notaAlvoBraco = '';
@@ -1880,20 +1906,17 @@
         let casaAlvo = 0;
         let cordaSelecionadaPratica = 'todas';
 
-        // Variáveis do Timer do Braço
         let timerBracoID = null;
         let tempoRestanteBraco = 10;
         let tempoTotalBraco = 10;
         let esperandoProximaNota = false;
-        let jogoIniciado = false; // NOVO: Controla se o jogo já começou
+        let jogoIniciado = false; 
 
         function calcularNotaBraco(cordaZeroIndex, casa) {
-            // cordaZeroIndex: 0 é corda 6 (E), 5 é corda 1 (E)
             let index = (afinacaoIndex[cordaZeroIndex] + casa) % 12;
             return notasCromaticas[index];
         }
 
-        // Variáveis de Estado
         let indicePerguntaAtual = 0;
         let pontuacao = 0;
         let perguntasAtuais = [];
@@ -1901,7 +1924,6 @@
         let tempoRestante = 10;
         let audioCtx = null;
         
-        // Variáveis do Metrônomo
         let metronomoTocando = false;
         let bpmAtual = 100;
         let compasso = 4; 
@@ -1912,11 +1934,8 @@
         let tempoTreinoSegundos = 0;
         let timerTreinoID = null;
 
-        // Variáveis do Dicionário
         let categoriaAtualDicionario = '';
         let notaAtualDicionario = '';
-
-        // Variables para a pantalla de Teoría
         let tomAulaAtual = '';
 
         const dadosCamposHarmonicos = {
@@ -1941,7 +1960,6 @@
 
         const numeraisGraus = ['1º', '2º', '3º', '4º', '5º', '6º', '7º'];
 
-        // Elementos do DOM
         const mainCard = document.getElementById('main-card');
         const startScreen = document.getElementById('start-screen');
         const bracoScreen = document.getElementById('braco-screen');
@@ -1957,7 +1975,7 @@
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
         const afinadorScreen = document.getElementById('afinador-screen');
-        const tomVozScreen = document.getElementById('tom-voz-screen'); // NOVO
+        const tomVozScreen = document.getElementById('tom-voz-screen');
         
         const chordDiagram = document.getElementById('chord-diagram');
         const optionsContainer = document.getElementById('options-container');
@@ -1968,7 +1986,6 @@
         const feedbackMessage = document.getElementById('feedback-message');
         const beatIndicatorsContainer = document.getElementById('beat-indicators');
 
-        // Controles do Modal de Microfone
         function mostrarModalMicrofone() {
             document.getElementById('mic-permission-modal').classList.remove('hidden');
         }
@@ -2060,7 +2077,6 @@
             return array;
         }
 
-        // --- SISTEMA DE ÁUDIO ---
         function inicializarAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2099,10 +2115,8 @@
             oscillator.stop(audioCtx.currentTime + 0.2);
         }
 
-        // --- CONTROLO DA NAVEGAÇÃO E LARGURA DO ECRÃ ---
         function restaurarTamanhoCartao() {
-            mainCard.classList.remove('max-w-4xl');
-            mainCard.classList.remove('max-w-3xl');
+            mainCard.classList.remove('max-w-4xl', 'max-w-3xl');
             mainCard.classList.add('max-w-md');
         }
 
@@ -2124,7 +2138,6 @@
             document.getElementById('braco-score-display').textContent = bracoScore;
             esperandoProximaNota = false;
             
-            // Limpar a nota ao entrar na tela
             const revealedNote = document.getElementById('braco-revealed-note');
             if(revealedNote) revealedNote.className = "h-12 mt-2 text-5xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
             
@@ -2163,7 +2176,6 @@
             startScreen.classList.add('hidden');
             metronomoScreen.classList.remove('hidden');
             renderizarIndicadoresDeCompasso();
-            
             tempoTreinoSegundos = 0;
             document.getElementById('practice-timer').textContent = "00:00";
         }
@@ -2180,7 +2192,7 @@
         }
 
         function voltarParaInicio() {
-            clearInterval(timerBracoID); // Desligar o timer do braço se houver
+            clearInterval(timerBracoID); 
             bracoScreen.classList.add('hidden');
             quizOptionsScreen.classList.add('hidden');
             camposScreen.classList.add('hidden');
@@ -2193,7 +2205,7 @@
             aulaScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
             if (afinadorScreen) afinadorScreen.classList.add('hidden'); 
-            if (tomVozScreen) tomVozScreen.classList.add('hidden'); // NOVO
+            if (tomVozScreen) tomVozScreen.classList.add('hidden'); 
             startScreen.classList.remove('hidden');
             restaurarTamanhoCartao();
             
@@ -2201,18 +2213,14 @@
                 toggleMetronomo();
             }
 
-            // Desligar o afinador se estiver rodando
             if (typeof pararDeteccaoVoz === 'function') {
                 pararDeteccaoVoz();
             }
-            
-            // Desligar o analisador de voz de 10s se estiver rodando
             if (typeof pararGravacaoVozForcado === 'function') {
                 pararGravacaoVozForcado();
             }
         }
         
-        // --- LÓGICA DO BRAÇO INTERATIVO (NOVO) ---
         function desenharBracoInterativo(alvoCorda, alvoCasa) {
             const container = document.getElementById('braco-violao-container');
             container.innerHTML = '';
@@ -2297,66 +2305,24 @@
             container.appendChild(bracoBg);
         }
 
-        function mostrarTelaBraco() {
-            startScreen.classList.add('hidden');
-            bracoScreen.classList.remove('hidden');
-            expandirTamanhoCartao();
-            bracoScore = 0;
-            document.getElementById('braco-score-display').textContent = bracoScore;
-            esperandoProximaNota = false;
-            jogoIniciado = false; // Garante que o jogo começa pausado
-            cordaSelecionadaPratica = null; // NOVO: Garante que o primeiro clique funciona sempre
-            
-            // Limpar timer visualmente
-            clearInterval(timerBracoID);
-            const timerDisplay = document.getElementById('braco-timer-display');
-            timerDisplay.textContent = "--";
-            timerDisplay.classList.remove('text-red-500', 'animate-pulse');
-            
-            // Limpar a nota revelada (caso tenha ficado da vez anterior)
-            const revealedNote = document.getElementById('braco-revealed-note');
-            if(revealedNote) revealedNote.className = "h-12 mt-2 text-5xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
-            
-            // Mensagem para obrigar o clique
-            const msg = document.getElementById('braco-feedback-msg');
-            msg.textContent = "👇 Selecione uma opção de corda abaixo para começar!";
-            msg.className = "text-orange-400 font-bold text-lg animate-pulse";
-
-            // Desenha o braço limpo (sem a bolinha vermelha)
-            desenharBracoInterativo(null, null);
-
-            // Tira a cor laranja de todos os botões para mostrar que nenhum está ativo ainda
-            document.querySelectorAll('.corda-filter-btn').forEach(btn => {
-                btn.classList.remove('bg-orange-500', 'text-white');
-                btn.classList.add('bg-slate-700', 'text-slate-300');
-            });
-
-            // Oculta o painel de sequências
-            const sequenciaContainer = document.getElementById('sequencia-treino-container');
-            if (sequenciaContainer) sequenciaContainer.classList.add('hidden');
-        }
-
         function mudarCordaPratica(corda) {
-            // NOVO: Verifica se já clicou nesta corda antes (2º clique)
             if (cordaSelecionadaPratica === corda) {
                 if (!jogoIniciado) {
-                    jogoIniciado = true; // Agora sim, o jogo está valendo!
+                    jogoIniciado = true; 
                     const msg = document.getElementById('braco-feedback-msg');
                     msg.textContent = "Qual é a nota assinalada a vermelho?";
                     msg.className = "text-slate-300 text-lg";
-                    gerarNovaNotaBraco(); // Arranca a nota e o timer!
+                    gerarNovaNotaBraco(); 
                 }
-                return; // Sai da função para não resetar a UI
+                return; 
             }
 
-            // 1º Clique ou mudança de corda: Prepara tudo mas NÃO inicia
             cordaSelecionadaPratica = corda;
             bracoScore = 0;
             document.getElementById('braco-score-display').textContent = bracoScore;
             esperandoProximaNota = false;
-            jogoIniciado = false; // Mantém o jogo pausado!
+            jogoIniciado = false; 
             
-            // Atualizar UI dos botões de filtro
             document.querySelectorAll('.corda-filter-btn').forEach(btn => {
                 btn.classList.remove('bg-orange-500', 'text-white');
                 btn.classList.add('bg-slate-700', 'text-slate-300');
@@ -2369,14 +2335,12 @@
                 activeBtn.classList.add('bg-orange-500', 'text-white');
             }
             
-            // Limpar timer e braço visualmente
             clearInterval(timerBracoID);
             const timerDisplay = document.getElementById('braco-timer-display');
             timerDisplay.textContent = "--";
             timerDisplay.classList.remove('text-red-500', 'animate-pulse');
             desenharBracoInterativo(null, null);
 
-            // Mensagem a pedir o segundo clique
             const msg = document.getElementById('braco-feedback-msg');
             msg.textContent = "👇 Clique novamente neste botão para iniciar o cronómetro!";
             msg.className = "text-emerald-400 font-bold text-lg animate-pulse";
@@ -2384,7 +2348,6 @@
             const revealedNote = document.getElementById('braco-revealed-note');
             if(revealedNote) revealedNote.className = "h-12 mt-2 text-5xl sm:text-6xl font-black opacity-0 transition-all duration-300 flex items-center justify-center drop-shadow-md";
 
-            // Mostrar/Ocultar treino de sequência
             const sequenciaContainer = document.getElementById('sequencia-treino-container');
             if (corda === 'todas' || corda === 1 || corda === 2 || corda === 3) {
                 if (sequenciaContainer) sequenciaContainer.classList.add('hidden');
@@ -2400,7 +2363,6 @@
                         instrucaoDedo.className = 'text-amber-400 text-xs font-medium block mb-4 bg-amber-900/30 p-2 rounded border border-amber-700/50';
                     }
 
-                    // Resetar a UI para o estado "Aguardando Início" com verificação de segurança (evita erros null)
                     const containerIniciar = document.getElementById('container-botao-iniciar-treino');
                     if (containerIniciar) containerIniciar.classList.remove('hidden');
                     
@@ -2419,27 +2381,22 @@
             }
         }
 
-        // Função para arrancar o Treino de Sequência
         function iniciarTreinoSequencia() {
-            // Oculta o botão de Iniciar
             const containerIniciar = document.getElementById('container-botao-iniciar-treino');
             if (containerIniciar) containerIniciar.classList.add('hidden');
             
-            // Mostra o display das notas
             const notasDisplay = document.getElementById('sequencia-notas-display');
             if (notasDisplay) {
                 notasDisplay.classList.remove('hidden');
                 notasDisplay.classList.add('flex');
             }
             
-            // Mostra o botão "Nova Sequência"
             const btnNova = document.getElementById('btn-nova-sequencia');
             if (btnNova) {
                 btnNova.classList.remove('hidden');
                 btnNova.classList.add('flex');
             }
 
-            // Gera a primeira sequência de notas
             gerarNovaSequencia();
         }
 
@@ -2451,27 +2408,22 @@
             display.innerHTML = '';
             
             const cordaIndex = 6 - cordaAtual;
-            
-            // NOVO: Array para guardar as notas e garantir que não há repetições
             let notasNestaSequencia = [];
 
             for (let i = 0; i < 4; i++) {
                 let casaAleatoria;
                 let nota;
                 
-                // NOVO: O ciclo repete o sorteio se a nota já tiver saído nesta sequência
                 do {
-                    casaAleatoria = Math.floor(Math.random() * 13); // 0 a 12
+                    casaAleatoria = Math.floor(Math.random() * 13); 
                     nota = calcularNotaBraco(cordaIndex, casaAleatoria);
                 } while (notasNestaSequencia.includes(nota));
                 
-                // Guarda a nota validada no array para não a repetir nas próximas iterações
                 notasNestaSequencia.push(nota);
                 
                 const nomesParaPt = { 'C': 'Dó', 'C#': 'Dó#', 'D': 'Ré', 'D#': 'Ré#', 'E': 'Mi', 'F': 'Fá', 'F#': 'Fá#', 'G': 'Sol', 'G#': 'Sol#', 'A': 'Lá', 'A#': 'Lá#', 'B': 'Si' };
                 
                 let dedoBadge = '';
-                // Mostrar a marcação de dedo APENAS para os baixos (cordas 6, 5 e 4)
                 if (cordaAtual >= 4) {
                     dedoBadge = `<div class="mt-2 text-[10px] bg-amber-900/50 border border-amber-700 text-amber-400 px-2 py-0.5 rounded-full font-bold">Dedo: P</div>`;
                 } 
@@ -2501,7 +2453,6 @@
         function iniciarTimerBraco() {
             clearInterval(timerBracoID);
             
-            // Escala de Dificuldade!
             if (bracoScore >= 100) {
                 tempoTotalBraco = 3;
             } else if (bracoScore >= 50) {
@@ -2519,7 +2470,6 @@
                 tempoRestanteBraco--;
                 timerDisplay.textContent = tempoRestanteBraco + "s";
                 
-                // Aviso pisca vermelho nos últimos 3 segundos
                 if (tempoRestanteBraco <= 3 && tempoRestanteBraco > 0) {
                     timerDisplay.classList.add('text-red-500', 'animate-pulse');
                 }
@@ -2529,7 +2479,6 @@
                     timerDisplay.classList.remove('text-red-500', 'animate-pulse');
                     esperandoProximaNota = true;
                     
-                    // Tempo Esgotado!
                     tocarSomTempoEsgotado();
                     const msg = document.getElementById('braco-feedback-msg');
                     const nomesParaPt = { 'C': 'Dó', 'C#': 'Dó#', 'D': 'Ré', 'D#': 'Ré#', 'E': 'Mi', 'F': 'Fá', 'F#': 'Fá#', 'G': 'Sol', 'G#': 'Sol#', 'A': 'Lá', 'A#': 'Lá#', 'B': 'Si' };
@@ -2556,14 +2505,14 @@
         }
 
         function gerarNovaNotaBraco() {
-            if (!jogoIniciado) return; // Segurança extra
+            if (!jogoIniciado) return; 
 
             if (cordaSelecionadaPratica === 'todas') {
-                cordaAlvo = Math.floor(Math.random() * 6) + 1; // 1 a 6
+                cordaAlvo = Math.floor(Math.random() * 6) + 1; 
             } else {
                 cordaAlvo = parseInt(cordaSelecionadaPratica);
             }
-            casaAlvo = Math.floor(Math.random() * 13); // 0 a 12
+            casaAlvo = Math.floor(Math.random() * 13); 
             const cordaIndex = 6 - cordaAlvo; 
             notaAlvoBraco = calcularNotaBraco(cordaIndex, casaAlvo);
             desenharBracoInterativo(cordaAlvo, casaAlvo);
@@ -2571,7 +2520,6 @@
         }
 
         function verificarNotaBraco(notaEscolhida) {
-            // Trava o clique se o jogo ainda não tiver começado
             if (!jogoIniciado) {
                 const msg = document.getElementById('braco-feedback-msg');
                 if (cordaSelecionadaPratica !== null) {
@@ -2583,9 +2531,9 @@
                 return;
             }
 
-            if (esperandoProximaNota) return; // Evita clicar em botões enquanto a animação roda
+            if (esperandoProximaNota) return; 
             
-            clearInterval(timerBracoID); // Para o relógio assim que responde
+            clearInterval(timerBracoID); 
             esperandoProximaNota = true;
             
             inicializarAudio();
@@ -2603,7 +2551,6 @@
                 msg.textContent = "Correto! 🎉";
                 msg.className = "text-emerald-400 font-bold text-lg";
                 
-                // MOSTRAR A NOTA COM EFEITO
                 revealedNote.innerHTML = textoNota;
                 revealedNote.className = "h-12 mt-2 text-5xl sm:text-6xl font-black text-emerald-400 opacity-100 scale-110 transition-all duration-300 flex items-center justify-center drop-shadow-lg";
                 
@@ -2612,7 +2559,7 @@
                     msg.className = "text-slate-300 text-lg";
                     revealedNote.className = "h-12 mt-2 text-5xl sm:text-6xl font-black text-emerald-400 opacity-0 scale-100 transition-all duration-300 flex items-center justify-center drop-shadow-lg";
                     esperandoProximaNota = false;
-                    gerarNovaNotaBraco(); // Nova nota a cada acerto!
+                    gerarNovaNotaBraco(); 
                 }, 1000); 
             } else {
                 tocarSomTempoEsgotado();
@@ -2621,7 +2568,6 @@
                 bracoScore = 0;
                 document.getElementById('braco-score-display').textContent = bracoScore;
                 
-                // MOSTRAR A NOTA EM VERMELHO SE ERRAR
                 revealedNote.innerHTML = textoNota;
                 revealedNote.className = "h-12 mt-2 text-4xl sm:text-5xl font-black text-red-500 opacity-100 transition-all duration-300 flex items-center justify-center drop-shadow-md";
                 
@@ -2630,7 +2576,7 @@
                     msg.textContent = "Qual é a nota assinalada a vermelho?";
                     msg.className = "text-slate-300 text-lg";
                     esperandoProximaNota = false;
-                    gerarNovaNotaBraco(); // Nova nota a cada erro para continuar a fluidez
+                    gerarNovaNotaBraco(); 
                 }, 1500);
             }
         }
@@ -2743,7 +2689,6 @@
             return `(${nota})`;
         }
 
-        // Mostrar Acordes do Campo Harmónico
         function mostrarAcordesDoCampo(tom) {
             camposScreen.classList.add('hidden');
             estudoCampoScreen.classList.remove('hidden');
@@ -2785,7 +2730,6 @@
             });
         }
 
-        // --- LÓGICA DAS AULAS (ESCALAS E CAMPOS) ---
         function abrirAula(tom) {
             teoriaMenuScreen.classList.add('hidden');
             aulaScreen.classList.remove('hidden');
@@ -2794,7 +2738,6 @@
             tomAulaAtual = tom;
             document.getElementById('aula-title').textContent = `Tonalidade de ${tom}`;
 
-            // Preencher Escala
             const escalaContainer = document.getElementById('aula-escala-container');
             escalaContainer.innerHTML = '';
             dadosEscalas[tom].forEach((nota, idx) => {
@@ -2811,7 +2754,6 @@
                 }
             });
 
-            // Preencher Campo Harmônico
             const campoContainer = document.getElementById('aula-campo-container');
             campoContainer.innerHTML = '';
             dadosCamposHarmonicos[tom].forEach((acorde, idx) => {
@@ -3175,7 +3117,6 @@
 
         async function iniciarDeteccaoVoz() {
             try {
-                // Pede autorização para usar o microfone
                 streamAfinador = await navigator.mediaDevices.getUserMedia({ audio: true });
                 audioCtxAfinador = new (window.AudioContext || window.webkitAudioContext)();
                 analyserAfinador = audioCtxAfinador.createAnalyser();
@@ -3191,7 +3132,7 @@
                 btn.classList.replace('hover:bg-rose-600', 'hover:bg-slate-800');
                 btn.innerHTML = '<span>🛑</span> Desligar Microfone';
                 
-                document.getElementById('afinador-status').textContent = 'Escutando a sua voz...';
+                document.getElementById('afinador-status').textContent = 'A ouvir o instrumento...';
                 document.getElementById('afinador-status').classList.replace('text-slate-400', 'text-emerald-500');
                 document.getElementById('afinador-status').classList.add('animate-pulse');
                 
@@ -3226,7 +3167,6 @@
             
             const notaDisplay = document.getElementById('afinador-nota');
             
-            // Quando desliga, mostra a última nota detetada a cinza, ou os traços se nunca captou nada
             if (ultimaNotaAfinador !== '--') {
                 notaDisplay.innerHTML = ultimaNotaAfinador;
                 notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-400 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
@@ -3241,7 +3181,6 @@
             document.getElementById('afinador-pulse').style.opacity = '0';
         }
 
-        // Algoritmo de Autocorrelação para encontrar a frequência exata
         function autoCorrelate(buf, sampleRate) {
             let SIZE = buf.length;
             let rms = 0;
@@ -3250,7 +3189,6 @@
                 rms += val * val;
             }
             rms = Math.sqrt(rms / SIZE);
-            // Threshold afinado para cortar ruído de fundo imediatamente
             if (rms < 0.015) return -1; 
 
             let r1 = 0, r2 = SIZE - 1, thres = 0.2;
@@ -3267,7 +3205,7 @@
                 for (let j = 0; j < SIZE - i; j++)
                     c[i] = c[i] + buf[j] * buf[j + i];
 
-            let d = 0; while (c[d] > c[d + 1]) d++;
+            let d = 0; while (d < SIZE - 1 && c[d] > c[d + 1]) d++; 
             let maxval = -1, maxpos = -1;
             for (let i = d; i < SIZE; i++) {
                 if (c[i] > maxval) {
@@ -3277,8 +3215,7 @@
             }
             let T0 = maxpos;
             
-            // Segurança contra matemática impossível
-            if (T0 === 0 || T0 === -1) return -1;
+            if (T0 <= 0 || T0 >= SIZE - 1) return -1;
             
             let x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1];
             let a = (x1 + x3 - 2 * x2) / 2;
@@ -3312,16 +3249,12 @@
             const ponteiro = document.getElementById('afinador-ponteiro');
             const pulse = document.getElementById('afinador-pulse');
 
-            // Array com a formatação limpa das notas
             const notasFormatoPT = [
                 "Dó (C)", "Dó#", "Ré (D)", "Ré#", "Mi (E)", "Fá (F)", 
                 "Fá#", "Sol (G)", "Sol#", "Lá (A)", "Lá#", "Si (B)"
             ];
 
-            // Verifica se está em silêncio ou se a leitura matemática falhou
             if (ac === -1 || isNaN(ac) || !isFinite(ac)) {
-                
-                // Silêncio: Congela a última nota para não desaparecer!
                 if (ultimaNotaAfinador !== '--') {
                     notaDisplay.innerHTML = ultimaNotaAfinador;
                     notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-400 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
@@ -3330,7 +3263,6 @@
                     notaDisplay.className = 'text-5xl sm:text-6xl font-black text-slate-800 w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
                 }
 
-                // O ponteiro regressa ao centro com cor neutra
                 ponteiro.style.left = '50%';
                 ponteiro.style.backgroundColor = '#94a3b8'; 
                 pulse.style.opacity = '0';
@@ -3340,7 +3272,6 @@
                 const pitch = ac;
                 const note = noteFromPitch(pitch);
                 
-                // Blindagem extra: impede bugs se a frequência for demasiado baixa
                 if (isNaN(note) || note < 0) {
                     pitchDetectionFrameId = requestAnimationFrame(updatePitch);
                     return;
@@ -3349,10 +3280,8 @@
                 const formatada = notasFormatoPT[note % 12];
                 const detune = centsOffFromPitch(pitch, note);
                 
-                // A MAGIA: Guarda a nota correta na memória global
                 ultimaNotaAfinador = formatada;
                 
-                // Atualiza a tela com o som detetado
                 notaDisplay.innerHTML = formatada;
                 hzDisplay.textContent = pitch.toFixed(1);
                 
@@ -3369,21 +3298,17 @@
                 pulse.style.opacity = '0.5';
                 pulse.style.transform = `scale(${1 + (volumeMax * 2)})`;
 
-                // Reseta as classes para aplicar a cor do afinador
                 notaDisplay.className = 'text-5xl sm:text-6xl font-black w-full z-10 transition-colors duration-200 relative flex items-center justify-center';
                 
                 if (Math.abs(detune) < 5) {
-                    // Verde (Afinado)
                     notaDisplay.classList.add('text-emerald-500');
                     ponteiro.style.backgroundColor = '#10b981'; 
                     pulse.className = 'absolute w-32 h-32 bg-emerald-100 rounded-full transition-all duration-75';
                 } else if (Math.abs(detune) < 20) {
-                    // Laranja (Quase lá)
                     notaDisplay.classList.add('text-amber-500');
                     ponteiro.style.backgroundColor = '#f59e0b'; 
                     pulse.className = 'absolute w-32 h-32 bg-amber-100 rounded-full transition-all duration-75';
                 } else {
-                    // Vermelho (Desafinado)
                     notaDisplay.classList.add('text-rose-500');
                     ponteiro.style.backgroundColor = '#f43f5e'; 
                     pulse.className = 'absolute w-32 h-32 bg-rose-100 rounded-full transition-all duration-75';
@@ -3403,6 +3328,7 @@
         let tempoVozRestante = 10;
         let notasColetadas = {};
         const bufVoz = new Float32Array(2048);
+        const notasAfinador = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
         function mostrarTomVoz() {
             startScreen.classList.add('hidden');
@@ -3411,7 +3337,7 @@
         }
 
         function prepararNovaGravacaoVoz() {
-            pararGravacaoVozForcado(); // Limpa qualquer coisa ativa
+            pararGravacaoVozForcado();
             document.getElementById('voz-resultado-container').classList.add('hidden');
             document.getElementById('btn-iniciar-voz').classList.remove('hidden');
             document.getElementById('btn-iniciar-voz').innerHTML = '<span>▶️</span> Iniciar Gravação (10s)';
@@ -3427,6 +3353,11 @@
             try {
                 streamVoz = await navigator.mediaDevices.getUserMedia({ audio: true });
                 audioCtxVoz = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (audioCtxVoz.state === 'suspended') {
+                    await audioCtxVoz.resume();
+                }
+
                 analyserVoz = audioCtxVoz.createAnalyser();
                 analyserVoz.fftSize = 2048;
                 
@@ -3458,6 +3389,7 @@
                 
             } catch (err) {
                 console.error("Erro ao acessar o microfone:", err);
+                prepararNovaGravacaoVoz();
                 mostrarModalMicrofone();
             }
         }
@@ -3466,7 +3398,6 @@
             if (!isGravandoVoz) return;
             
             analyserVoz.getFloatTimeDomainData(bufVoz);
-            // Reutiliza a função de matemática autoCorrelate já existente no afinador
             const ac = autoCorrelate(bufVoz, audioCtxVoz.sampleRate); 
             
             const pulse = document.getElementById('voz-pulse');
@@ -3475,9 +3406,8 @@
                 const note = noteFromPitch(ac);
                 if (!isNaN(note) && note > 0) {
                     const sym = notasAfinador[note % 12];
-                    notasColetadas[sym] = (notasColetadas[sym] || 0) + 1; // Guarda a nota detetada no contador
+                    notasColetadas[sym] = (notasColetadas[sym] || 0) + 1; 
                     
-                    // Efeito visual que reage ao volume da voz
                     let volumeMax = 0;
                     for(let i=0; i<bufVoz.length; i++) {
                         if(Math.abs(bufVoz[i]) > volumeMax) volumeMax = Math.abs(bufVoz[i]);
@@ -3494,7 +3424,7 @@
         }
 
         function finalizarGravacaoVoz() {
-            pararGravacaoVozForcado(); // Para os streams e o loop
+            pararGravacaoVozForcado(); 
             
             document.getElementById('voz-status').textContent = 'Análise Concluída!';
             document.getElementById('voz-status').classList.remove('text-fuchsia-500', 'animate-pulse');
@@ -3502,7 +3432,6 @@
             document.getElementById('btn-iniciar-voz').classList.add('hidden');
             document.getElementById('btn-refazer-voz').classList.remove('hidden');
             
-            // Lógica para descobrir a nota que foi mais vezes cantada nos 10 segundos
             let maxNota = '--';
             let maxContagem = 0;
             let totalNotasDetectadas = 0;
@@ -3517,10 +3446,9 @@
             
             const displayFinal = document.getElementById('voz-nota-final');
             
-            // Mínimo de qualidade: Precisa captar áudio suficiente para dar um resultado válido
             if (totalNotasDetectadas > 30 && maxContagem > 15) {
                 const traduz = { 'C':'Dó (C)', 'C#':'Dó# (C#)', 'D':'Ré (D)', 'D#':'Ré# (D#)', 'E':'Mi (E)', 'F':'Fá (F)', 'F#':'Fá# (F#)', 'G':'Sol (G)', 'G#':'Sol# (G#)', 'A':'Lá (A)', 'A#':'Lá# (A#)', 'B':'Si (B)' };
-                displayFinal.innerHTML = traduz[maxNota];
+                displayFinal.innerHTML = traduz[maxNota] || maxNota;
                 displayFinal.className = 'text-4xl sm:text-5xl font-black text-fuchsia-600 mt-2';
             } else {
                 displayFinal.innerHTML = "Inconclusivo<br><span class='text-base font-normal text-slate-500 mt-2 block'>Por favor, cante mais alto e contínuo!</span>";
